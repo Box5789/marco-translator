@@ -35,9 +35,11 @@ This preserves the system boundary: MARCO decides **which known meaning** is gro
 
 ## Accepted MARCO outcomes
 
-A known mapped node is accepted from `answered`, `needs_input` or `observed` results. `unknown` and `rejected` are never promoted into a translation merely because a low-confidence winner happened to exist in a trace.
+A known mapped node is accepted directly from `answered`, `needs_input` or `observed` results. `rejected` is never promoted into a translation.
 
-P1 uses `needs_input` intentionally: the semantic-routing graph is not trying to satisfy a conversational goal. It uses MARCO's matching/routing machinery to select a stable semantic node.
+MARCO's general input-understanding layer can currently return `unknown` for a source language it does not structurally parse even when the translator graph matcher has selected a semantic node exactly. The translator therefore has one deliberately narrow rescue path: an `unknown` result is accepted only when the public `judge` trace selects a node present in the frame map and its separation margin is at least `0.90`. The frame confidence is capped by that margin. Low-margin or unmapped `unknown` results stay unresolved.
+
+This is not a free-form fallback: the adapter still cannot invent a node, a frame, terminology or target text. It only accepts a strongly separated node already declared in the versioned translator pack.
 
 ## Frame map
 
@@ -53,7 +55,7 @@ Terminology decisions remain in `knowledge/seed.zh-ko.json`, so semantic routing
 
 ## Unknown contract
 
-If MARCO returns `unknown` / `rejected`, selects an unmapped node, or the frame is outside the request's language/domain scope, the resolver returns an unresolved frame. The neural realizer is not allowed to invent a meaning for that frame.
+If MARCO returns `rejected`, returns a low-confidence/unmapped `unknown`, selects an unmapped node, or the frame is outside the request's language/domain scope, the resolver returns an unresolved frame. The neural realizer is not allowed to invent a meaning for that frame.
 
 ## Building the P1 model
 

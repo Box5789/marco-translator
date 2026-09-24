@@ -18,13 +18,14 @@ class FakeStep:
 
 
 class FakeTrace:
-    def __init__(self, winner: str | None):
+    def __init__(self, winner: str | None, margin: float | None = None):
         self.winner = winner
+        self.margin = margin
 
     def stage(self, name: str):
         if name != "judge" or self.winner is None:
             raise KeyError(name)
-        return FakeStep({"winner": self.winner})
+        return FakeStep({"winner": self.winner, "margin": self.margin})
 
 
 @dataclass
@@ -35,9 +36,9 @@ class FakeEvidence:
 
 
 class FakeResult:
-    def __init__(self, status: str, winner: str | None, *, evidence=()):
+    def __init__(self, status: str, winner: str | None, *, margin: float | None = None, evidence=()):
         self.status = status
-        self.trace = FakeTrace(winner)
+        self.trace = FakeTrace(winner, margin)
         self.evidence = list(evidence)
         self.answer = ""
 
@@ -73,12 +74,25 @@ def test_translator_realizes_marco_selected_frame_without_llm():
     assert result.translated_text == "본진에 적 있음"
 
 
-def test_unknown_status_never_promotes_trace_winner():
-    resolver, _ = resolver_for(FakeResult("unknown", "ZH_GAMING_WEST_SNIPER"))
+def test_unknown_status_with_low_margin_never_promotes_trace_winner():
+    resolver, _ = resolver_for(FakeResult("unknown", "ZH_GAMING_WEST_SNIPER", margin=0.40))
     frame = resolver.resolve(TranslationRequest("完全未知的新句子", domain="gaming"))
     assert frame.unresolved == ["完全未知的新句子"]
     assert frame.template is None
     assert frame.confidence == 0.0
+
+
+def test_unknown_status_can_rescue_a_strong_mapped_semantic_match():
+    resolver, _ = resolver_for(FakeResult("unknown", "ZH_GAMING_WEST_SNIPER", margin=0.993))
+    frame = resolver.resolve(TranslationRequest("西边有狙", domain="gaming"))
+    assert frame.template == "{location}에 {entity} 있음"
+    assert frame.confidence == 0.99
+
+
+def test_rejected_status_is_never_rescued_even_with_high_margin():
+    resolver, _ = resolver_for(FakeResult("rejected", "ZH_GAMING_WEST_SNIPER", margin=1.0))
+    frame = resolver.resolve(TranslationRequest("西边有狙", domain="gaming"))
+    assert frame.unresolved == ["西边有狙"]
 
 
 def test_unmapped_or_wrong_domain_is_unresolved():

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +13,7 @@ class MarcoUnavailable(RuntimeError):
 
 
 _ACCEPTABLE_STATUSES = {"answered", "needs_input", "observed"}
+_DEFAULT_UNKNOWN_TRACE_MARGIN = 0.90
 
 
 class MarcoResolver:
@@ -24,7 +26,7 @@ class MarcoResolver:
     """
 
     def __init__(self, model_path: str, frame_map_path: str, *, knowledge=None,
-                 marco_root: str | None = None) -> None:
+                 marco_root: str | None = None, unknown_trace_margin: float = _DEFAULT_UNKNOWN_TRACE_MARGIN) -> None:
         try:
             import mco  # type: ignore
         except ImportError as exc:
@@ -33,18 +35,22 @@ class MarcoResolver:
         if marco_root:
             kwargs["marco_root"] = marco_root
         model = mco.load(model_path, **kwargs)
-        self._init(model, frame_map_path, knowledge)
+        self._init(model, frame_map_path, knowledge, unknown_trace_margin)
 
     @classmethod
-    def from_model(cls, model, frame_map_path: str, *, knowledge=None) -> "MarcoResolver":
+    def from_model(cls, model, frame_map_path: str, *, knowledge=None,
+                   unknown_trace_margin: float = _DEFAULT_UNKNOWN_TRACE_MARGIN) -> "MarcoResolver":
         """Dependency-injection constructor used by tests and alternate runtimes."""
         obj = cls.__new__(cls)
-        obj._init(model, frame_map_path, knowledge)
+        obj._init(model, frame_map_path, knowledge, unknown_trace_margin)
         return obj
 
-    def _init(self, model, frame_map_path: str, knowledge) -> None:
+    def _init(self, model, frame_map_path: str, knowledge, unknown_trace_margin: float) -> None:
         self._model = model
         self._knowledge = knowledge
+        if not 0.0 <= float(unknown_trace_margin) <= 1.0:
+            raise ValueError("unknown_trace_margin must be in 0..1")
+        self._unknown_trace_margin = float(unknown_trace_margin)
         doc = json.loads(Path(frame_map_path).read_text(encoding="utf-8"))
         if doc.get("schema_version") != "marco-frame-map-v1":
             raise ValueError("unsupported MARCO frame-map schema")
@@ -60,19 +66,26 @@ class MarcoResolver:
         return str(getattr(result, "status", ""))
 
     @staticmethod
-    def _winner_from_trace(result) -> str | None:
+    def _judge_from_trace(result) -> tuple[str | None, float | None]:
         trace = getattr(result, "trace", None)
         if trace is None:
-            return None
+            return None, None
         try:
             step = trace.stage("judge")
         except (AttributeError, KeyError, IndexError, TypeError):
-            return None
+            return None, None
+        if step is None:
+            return None, None
         detail = getattr(step, "detail", None)
-        if isinstance(detail, dict):
-            winner = detail.get("winner")
-            return str(winner) if winner else None
-        return None
+        if not isinstance(detail, Mapping):
+            return None, None
+        winner = detail.get("winner")
+        margin = detail.get("margin")
+        try:
+            margin = float(margin) if margin is not None else None
+        except (TypeError, ValueError):
+            margin = None
+        return (str(winner) if winner else None), margin
 
     @staticmethod
     def _winner_from_evidence(result) -> tuple[str | None, float | None]:
@@ -107,12 +120,27 @@ class MarcoResolver:
         # Raw text is essential: MARCO's graph matcher must see the actual
         # utterance and its examples, not a JSON wrapper around it.
         result = self._model.run(request.text)
-        if self._status(result) not in _ACCEPTABLE_STATUSES:
-            return self._unresolved(request, "marco_status")
-
-        winner = self._winner_from_trace(result)
+        status = self._status(result)
+        winner, judge_margin = self._judge_from_trace(result)
         evidence_winner, evidence_score = self._winner_from_evidence(result)
         node = winner if winner in self._frames else evidence_winner
+
+        # MARCO's general language-understanding layer currently does not parse
+        # arbitrary source languages such as Chinese, even when its graph matcher
+        # selects an exact translator semantic node. For translator-specific packs
+        # we permit a narrow rescue: UNKNOWN may be accepted only when the public
+        # judge trace names a mapped node with a very large separation margin.
+        # REJECTED is never rescued, and low-margin UNKNOWN remains unresolved.
+        trace_rescue = (
+            status == "unknown"
+            and winner is not None
+            and winner in self._frames
+            and judge_margin is not None
+            and judge_margin >= self._unknown_trace_margin
+        )
+        if status not in _ACCEPTABLE_STATUSES and not trace_rescue:
+            return self._unresolved(request, "marco_status")
+
         spec = self._frames.get(node) if node else None
         if not isinstance(spec, dict):
             return self._unresolved(request, "unmapped_marco_node")
@@ -126,6 +154,8 @@ class MarcoResolver:
             return self._unresolved(request, "domain_mismatch")
 
         confidence = float(spec.get("confidence", 0.0))
+        if trace_rescue and judge_margin is not None:
+            confidence = min(confidence, max(0.0, min(1.0, judge_margin)))
         if evidence_score is not None:
             confidence = min(confidence, max(0.0, min(1.0, evidence_score)))
         terms = []
