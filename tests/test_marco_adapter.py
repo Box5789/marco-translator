@@ -5,6 +5,7 @@ from marco_translator.knowledge import KnowledgeStore
 from marco_translator.marco_adapter import MarcoResolver
 from marco_translator.models import TranslationRequest
 from marco_translator.pipeline import Translator
+from marco_translator.user_state import SQLiteUserOverlay
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -110,3 +111,19 @@ def test_graph_node_evidence_is_fallback_when_trace_has_no_mapped_winner():
     frame = resolver.resolve(TranslationRequest("教堂需要建材", domain="gaming"))
     assert frame.template == "{location}에 {object}가 필요함"
     assert frame.confidence == 0.88
+
+
+def test_reversible_user_route_bias_can_rescue_borderline_mapped_unknown(tmp_path):
+    overlay = SQLiteUserOverlay(tmp_path / "overlay.db")
+    event = overlay.adjust_routing_weight("gaming", "ZH_GAMING_WEST_SNIPER", 0.05)
+    model = FakeModel(FakeResult("unknown", "ZH_GAMING_WEST_SNIPER", margin=0.87))
+    resolver = MarcoResolver.from_model(
+        model, str(FRAME_MAP), knowledge=KNOWLEDGE, routing_weights=overlay
+    )
+    frame = resolver.resolve(TranslationRequest("西边有狙", domain="gaming"))
+    assert frame.template == "{location}에 {entity} 있음"
+    assert frame.confidence == pytest.approx(0.92)
+
+    overlay.rollback_routing_weight(event)
+    frame = resolver.resolve(TranslationRequest("西边有狙", domain="gaming"))
+    assert frame.unresolved == ["西边有狙"]

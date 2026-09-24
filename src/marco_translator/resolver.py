@@ -41,13 +41,19 @@ class DeterministicResolver:
                     domain=request.domain,
                     intent=pattern.intent,
                     style=request.style if request.style != "neutral" else pattern.style,
-                    terms=self.knowledge.resolve_terms(request.text, request.source_language, request.target_language, request.domain),
+                    terms=self.knowledge.resolve_terms(
+                        request.text, request.source_language, request.target_language,
+                        request.domain, session_id=request.session_id
+                    ),
                     template=pattern.template,
                     slots=dict(pattern.slots),
                     confidence=pattern.confidence,
                 )
 
-        terms = self.knowledge.resolve_terms(request.text, request.source_language, request.target_language, request.domain)
+        terms = self.knowledge.resolve_terms(
+            request.text, request.source_language, request.target_language,
+            request.domain, session_id=request.session_id
+        )
         covered = set()
         for term in terms:
             covered.update(term.source)
