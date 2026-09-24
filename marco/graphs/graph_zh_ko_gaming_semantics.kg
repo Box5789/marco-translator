@@ -1,0 +1,40 @@
+# Chinese gaming-chat semantic routing for the first Marco Translator P1 pack.
+# MARCO chooses a stable semantic node; the translator maps that node to a
+# target-language semantic frame. MARCO is not asked to generate Korean text.
+역할: 중국어 게임 채팅 의미 분류
+목표: TRANSLATION_SEMANTICS_RESOLVED
+임계값: 0.50 / 0.60
+이름말: 용어
+전진관계: 뜻함
+부정관계: 배제함
+근거관계: 뜻함
+
+[개념]
+TRANSLATION_SEMANTICS_RESOLVED: "번역 의미가 정해졌다" | "의미 분류가 끝났다"
+ZH_GAMING_WEST_SNIPER: "西边有狙" | "西边有狙击手" | "西边有狙啊"
+ZH_GAMING_BASE_ENEMY: "家里有人" | "家里来人了" | "来人了家里"
+ZH_GAMING_CHURCH_MATERIALS: "教堂需要建材" | "教堂要建材" | "教堂缺建材"
+ZH_GAMING_GROUP_PUSH: "集合一波去啊" | "集合一波" | "一起推一波"
+ZH_GAMING_STOP_FEEDING: "一个一个送没辙" | "别一个一个送" | "一个个送没法打"
+
+[무관]
+_잡담: "天气不错" | "今天吃什么"
+
+[논증]
+ZH_GAMING_WEST_SNIPER       -뜻함-> TRANSLATION_SEMANTICS_RESOLVED
+ZH_GAMING_BASE_ENEMY        -뜻함-> TRANSLATION_SEMANTICS_RESOLVED
+ZH_GAMING_CHURCH_MATERIALS  -뜻함-> TRANSLATION_SEMANTICS_RESOLVED
+ZH_GAMING_GROUP_PUSH        -뜻함-> TRANSLATION_SEMANTICS_RESOLVED
+ZH_GAMING_STOP_FEEDING      -뜻함-> TRANSLATION_SEMANTICS_RESOLVED
+
+[대사]
+B2: 번역 의미 그래프와 관련 없는 입력입니다.
+B2_강등: 이 그래프는 등록된 중국어 게임 채팅 의미만 분류합니다.
+A: {claim} 의미인가요?
+근거없음: {claim} 후보는 잡혔지만 근거가 부족합니다.
+인정: {claim} 의미로 분류했습니다.
+인정_반격: {claim} 의미 후보는 맞지만 {bad} 때문에 확정하지 않습니다.
+C: 이 근거만으로는 {claim} 의미로 볼 수 없습니다.
+B1: {claim} 의미 후보를 확인했습니다.
+미지: 등록된 의미를 찾지 못했습니다.
+목표주장: 번역할 의미를 먼저 고릅니다.
