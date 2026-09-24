@@ -29,8 +29,7 @@ class SemanticFrame:
     confidence: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
-        value = asdict(self)
-        return value
+        return asdict(self)
 
 
 @dataclass(frozen=True)
@@ -54,5 +53,13 @@ class TranslationResult:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        out = asdict(self)
-        return out
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class CorrectionReceipt:
+    source_text: str
+    corrected_text: str
+    tm_written: bool
+    proposal_id: str | None = None
+    proposal_status: str | None = None

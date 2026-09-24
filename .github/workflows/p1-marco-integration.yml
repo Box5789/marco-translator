@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - p1/marco-semantic-adapter
+      - p1/user-overlay
   pull_request:
   workflow_dispatch:
 
@@ -35,7 +36,7 @@ jobs:
           python -m pip install -e .
 
       - name: Unit tests
-        run: pytest -q tests/test_pipeline.py tests/test_maintenance.py tests/test_marco_adapter.py
+        run: pytest -q tests/test_pipeline.py tests/test_maintenance.py tests/test_marco_adapter.py tests/test_user_overlay.py
 
       - name: Build translator MCO
         run: |

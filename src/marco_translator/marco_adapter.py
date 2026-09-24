@@ -26,7 +26,8 @@ class MarcoResolver:
     """
 
     def __init__(self, model_path: str, frame_map_path: str, *, knowledge=None,
-                 marco_root: str | None = None, unknown_trace_margin: float = _DEFAULT_UNKNOWN_TRACE_MARGIN) -> None:
+                 marco_root: str | None = None, unknown_trace_margin: float = _DEFAULT_UNKNOWN_TRACE_MARGIN,
+                 routing_weights=None) -> None:
         try:
             import mco  # type: ignore
         except ImportError as exc:
@@ -35,19 +36,22 @@ class MarcoResolver:
         if marco_root:
             kwargs["marco_root"] = marco_root
         model = mco.load(model_path, **kwargs)
-        self._init(model, frame_map_path, knowledge, unknown_trace_margin)
+        self._init(model, frame_map_path, knowledge, unknown_trace_margin, routing_weights)
 
     @classmethod
     def from_model(cls, model, frame_map_path: str, *, knowledge=None,
-                   unknown_trace_margin: float = _DEFAULT_UNKNOWN_TRACE_MARGIN) -> "MarcoResolver":
+                   unknown_trace_margin: float = _DEFAULT_UNKNOWN_TRACE_MARGIN,
+                   routing_weights=None) -> "MarcoResolver":
         """Dependency-injection constructor used by tests and alternate runtimes."""
         obj = cls.__new__(cls)
-        obj._init(model, frame_map_path, knowledge, unknown_trace_margin)
+        obj._init(model, frame_map_path, knowledge, unknown_trace_margin, routing_weights)
         return obj
 
-    def _init(self, model, frame_map_path: str, knowledge, unknown_trace_margin: float) -> None:
+    def _init(self, model, frame_map_path: str, knowledge, unknown_trace_margin: float,
+              routing_weights) -> None:
         self._model = model
         self._knowledge = knowledge
+        self._routing_weights = routing_weights
         if not 0.0 <= float(unknown_trace_margin) <= 1.0:
             raise ValueError("unknown_trace_margin must be in 0..1")
         self._unknown_trace_margin = float(unknown_trace_margin)
@@ -124,6 +128,13 @@ class MarcoResolver:
         winner, judge_margin = self._judge_from_trace(result)
         evidence_winner, evidence_score = self._winner_from_evidence(result)
         node = winner if winner in self._frames else evidence_winner
+        route_bias = 0.0
+        if node and self._routing_weights is not None:
+            route_bias = float(self._routing_weights.routing_weight(request.domain, node))
+        adjusted_margin = (
+            max(0.0, min(1.0, judge_margin + route_bias))
+            if judge_margin is not None else None
+        )
 
         # MARCO's general language-understanding layer currently does not parse
         # arbitrary source languages such as Chinese, even when its graph matcher
@@ -135,8 +146,8 @@ class MarcoResolver:
             status == "unknown"
             and winner is not None
             and winner in self._frames
-            and judge_margin is not None
-            and judge_margin >= self._unknown_trace_margin
+            and adjusted_margin is not None
+            and adjusted_margin >= self._unknown_trace_margin
         )
         if status not in _ACCEPTABLE_STATUSES and not trace_rescue:
             return self._unresolved(request, "marco_status")
@@ -154,14 +165,15 @@ class MarcoResolver:
             return self._unresolved(request, "domain_mismatch")
 
         confidence = float(spec.get("confidence", 0.0))
-        if trace_rescue and judge_margin is not None:
-            confidence = min(confidence, max(0.0, min(1.0, judge_margin)))
+        if trace_rescue and adjusted_margin is not None:
+            confidence = min(confidence, adjusted_margin)
         if evidence_score is not None:
             confidence = min(confidence, max(0.0, min(1.0, evidence_score)))
         terms = []
         if self._knowledge is not None:
             terms = self._knowledge.resolve_terms(
-                request.text, request.source_language, request.target_language, request.domain
+                request.text, request.source_language, request.target_language,
+                request.domain, session_id=request.session_id
             )
 
         return SemanticFrame(
