@@ -30,6 +30,7 @@ P1-A/B/C는 baseline source commit의 prior CI에서 검증되었다. 새 P1-D �
 - 자동 network 전송 없음
 - 동일 canonical evidence의 ID 안정성
 - duplicate/collision policy
+- complete `kg2_` asset snapshot, style/config digests, build provenance, and matching derived `.mco`
 
 ### Import and validation
 - valid patch
@@ -40,6 +41,8 @@ P1-A/B/C는 baseline source commit의 prior CI에서 검증되었다. 새 P1-D �
 - contradictory/conflicting patch
 - malicious path/archive entry
 - missing required metadata
+- all seven v2 operations, closed resource allowlist, stable target identity, and exact expected-old-state
+- distinct lexical confidence and semantic routing-weight bounds/behavior
 
 ### Dry run
 - expected diff 산출
@@ -51,11 +54,14 @@ P1-A/B/C는 baseline source commit의 prior CI에서 검증되었다. 새 P1-D �
 - changed / improved / regressed / unchanged 분류
 - gaming `家里 → 본진`이 literal `家里 → 집`을 global하게 파괴하지 않는지 확인
 - repeated replay reproducibility
+- rebuild the candidate with the actual upstream MARCO compiler and versioned style/axiom inputs
 
 ### Approval transaction
 - explicit approval 없이는 active version 불변
 - successful approval creates one new version
 - injected failure leaves prior active version intact
+- approval is bound to the freshly replayed candidate version ID
+- asset snapshot, derived `.mco`, lineage, and active pointer commit in one SQLite transaction
 - proposal/evidence/base/new version lineage 기록
 
 ### Rollback

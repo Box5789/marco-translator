@@ -254,6 +254,37 @@ Evidence required before decision:
 
 Candidate set은 `docs/PLATFORM_STRATEGY.md`를 따른다.
 
+### ADR-005 — Canonical Knowledge Version and patch mutation semantics
+Status: Accepted — 사용자 결정, 2026-09-24
+
+Context and evidence:
+- `KnowledgeStore.from_json` consumes `knowledge/seed.zh-ko.json`; `MarcoResolver` separately consumes `knowledge/marco-frame-map.zh-ko.json`.
+- `scripts/build_marco_pack.py` compiles the selected source graph from `marco/` through `mco.compile`.
+- Upstream MARCO `DoTaeIn/Marco@59d19de74443b5f3768e27032ef83e1c592b0d47` documents deterministic `.mco` output. Its compiler packages selected `.kg` files and `kgpack.model_files()`, which includes `styles/*.json` and `axioms/*.json`. The current translator source contains the semantic graph and `marco/styles/translator.json`.
+- MARCO graph authoring defines `[개념]` examples as routeable node examples, `[무관]` examples as unrelated/distractor input, and `[논증]` as typed graph relations. `부정관계` is a rebuttal relation, not a classifier negative example. The `.kg` contract has no per-edge numeric weight field.
+- `SQLiteUserOverlay` bounds user route bias; `MarcoResolver` uses it only for the trace-rescue margin of an already mapped node. Seed `confidence` is lexical confidence.
+
+Alternatives considered:
+| Option | Result | Reason |
+|---|---|---|
+| Version only the runtime seed | Rejected | Cannot identify the MARCO graph, frame mapping, or compiled routing behavior. |
+| Treat `.mco` as the sole authoritative artifact | Rejected | Loses editable source and reproducible build inputs. |
+| Version editable sources, compiler inputs/provenance, and the verified derived output | Accepted | Supports complete dry-run, replay, restart, activation, and rollback. |
+
+Decision:
+- A canonical Knowledge Version contains the exact `knowledge/seed.zh-ko.json`, `marco/graphs/graph_zh_ko_gaming_semantics.kg`, `knowledge/marco-frame-map.zh-ko.json`, and every MARCO model asset consumed from `marco/styles/*.json` and `marco/axioms/*.json`.
+- Its build provenance records the upstream MARCO repository/revision, `mco` and NumPy versions, Python implementation/version, platform/architecture/zlib, build recipe and script/module SHA-256, canonical compiler-input digests, and the actual deterministic `.mco` output SHA-256/size. The version identity hashes the canonical asset digests and provenance, including the derived-output digest. The `.mco` bytes are stored as a verified derived runtime artifact, not as an editable canonical source.
+- Patch schema `kg-patch-v2` keeps all seven operation names. Every operation requires `resource`, a resource-scoped stable `target`, `expected_old_state`, `proposed_new_state`, and evidence IDs. Add operations require an absent old state; adjustments require the exact current old value. Resources are a closed allowlist; no patch supplies a filesystem path or changes code.
+- `ADD_ALIAS`, `ADD_SENSE`, and `ADD_DOMAIN_SENSE` add entries to the seed. `ADD_ALIAS` must reuse an existing concept; `ADD_SENSE` is global; `ADD_DOMAIN_SENSE` requires a domain.
+- `ADD_PATTERN` adds an example to an existing node in the MARCO graph's `[개념]` section. `ADD_NEGATIVE_CONSTRAINT` adds a distractor example to `[무관]`. `ADD_RELATION` adds one typed edge to `[논증]`, using a relation declared by that graph.
+- `ADJUST_WEIGHT` targets either seed `confidence` (lexical confidence in 0..1) or frame-map `routing_weight` (semantic route margin bias in -0.10..0.10, default 0). The latter follows the existing mapped-node trace-rescue hook; it does not change MARCO's selected node. When combined with user-scoped route bias, the total applied bias remains bounded to ±0.10. `부정관계` and MARCO global thresholds are not treated as per-target weights.
+- Active state changes only after schema, evidence, base identity, target identity, expected-state/conflict, build, replay, and explicit user approval pass. Complete immutable version snapshots, derived `.mco` bytes, lineage, and the active-version pointer are committed in one standard-library SQLite transaction. Runtime files are a verified materialized cache; the database snapshot is canonical. User Overlay, TM, and Session State remain outside the version transaction.
+
+Consequences:
+- Seed-only `kg1_` identities and the underspecified `kg-patch-v1` are rejected for the new transaction path; there is no silent migration or auto-apply.
+- The frame-map contract gains an optional bounded `routing_weight` field with default 0. MARCO source syntax remains unchanged.
+- The Python version store is a P1 reference implementation. P1-E/F and platform-native persistence remain out of scope.
+
 ## 9. Responsibility assignment
 
 | Responsibility | Current module/boundary | Rationale |
@@ -268,6 +299,6 @@ Candidate set은 `docs/PLATFORM_STRATEGY.md`를 따른다.
 
 OOP applies because persistent mutable state, service boundaries, and interchangeable resolver/realizer collaborators exist. Inheritance is not required by the baseline; composition/interfaces are preferred only where a current variation point exists.
 
-## 10. Current gap
+## 10. Gap at baseline creation
 
-다음 active gap은 P1-D다. 세부 scope와 stop condition은 `work/current.md`가 authoritative하다.
+At baseline creation, P1-D remained the active gap. Its approved scope and final evidence are recorded in `work/current.md`.

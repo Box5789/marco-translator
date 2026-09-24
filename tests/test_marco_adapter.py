@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+import json
 from pathlib import Path
 
 import pytest
 
-from marco_translator.knowledge import KnowledgeStore
+from marco_translator.knowledge import KnowledgeEntry, KnowledgeStore
 from marco_translator.marco_adapter import MarcoResolver
 from marco_translator.models import TranslationRequest
 from marco_translator.pipeline import Translator
@@ -129,3 +130,33 @@ def test_reversible_user_route_bias_can_rescue_borderline_mapped_unknown(tmp_pat
     overlay.rollback_routing_weight(event)
     frame = resolver.resolve(TranslationRequest("西边有狙", domain="gaming"))
     assert frame.unresolved == ["西边有狙"]
+
+
+def test_base_semantic_weight_is_separate_and_bounded_from_lexical_confidence(tmp_path):
+    frame_map = json.loads(FRAME_MAP.read_text(encoding="utf-8"))
+    frame_map["frames"]["ZH_GAMING_WEST_SNIPER"]["routing_weight"] = 0.05
+    customized = tmp_path / "frame-map.json"
+    customized.write_text(json.dumps(frame_map), encoding="utf-8")
+    model = FakeModel(FakeResult("unknown", "ZH_GAMING_WEST_SNIPER", margin=0.87))
+    resolver = MarcoResolver.from_model(model, str(customized), knowledge=KNOWLEDGE)
+    frame = resolver.resolve(TranslationRequest("西边有狙", domain="gaming"))
+    assert frame.template == "{location}에 {entity} 있음"
+    assert frame.confidence == pytest.approx(0.92)
+
+    frame_map["frames"]["ZH_GAMING_WEST_SNIPER"]["routing_weight"] = 0.10
+    customized.write_text(json.dumps(frame_map), encoding="utf-8")
+    model = FakeModel(FakeResult("unknown", "ZH_GAMING_WEST_SNIPER", margin=0.87))
+    low_lexical_confidence = KnowledgeStore([KnowledgeEntry(
+        source="狙", concept="SNIPER", target="저격수", domain="gaming", confidence=0.0,
+    )])
+    resolver = MarcoResolver.from_model(model, str(customized), knowledge=low_lexical_confidence)
+    frame = resolver.resolve(TranslationRequest("西边有狙", domain="gaming"))
+    assert frame.template == "{location}에 {entity} 있음"
+    assert frame.confidence == pytest.approx(0.97)
+    assert frame.terms[0].confidence == 0.0
+
+    frame_map["frames"]["ZH_GAMING_WEST_SNIPER"]["routing_weight"] = 0.11
+    customized.write_text(json.dumps(frame_map), encoding="utf-8")
+    with pytest.raises(ValueError, match="routing_weight"):
+        MarcoResolver.from_model(FakeModel(FakeResult("unknown", "ZH_GAMING_WEST_SNIPER", margin=0.87)),
+                                str(customized), knowledge=KNOWLEDGE)

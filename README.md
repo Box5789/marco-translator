@@ -97,6 +97,31 @@ new KG version
 
 See `docs/ARCHITECTURE.md`, `docs/REQUIREMENTS.md`, and `docs/P1.md`.
 
+## P1-D Knowledge Version API
+
+The reference maintenance API stores complete immutable source snapshots and their verified
+derived `.mco` in SQLite. It reads a clean upstream MARCO checkout for reproducible builds:
+
+```python
+from marco_translator.knowledge_version import KnowledgeVersionStore
+from marco_translator.maintenance import export_analysis_package
+
+store = KnowledgeVersionStore("knowledge-versions.sqlite", marco_root="/path/to/Marco")
+if store.active_version_id() is None:
+    store.initialize("/path/to/marco-translator")
+
+# Export is an explicit local action. The external analysis step stays user-controlled.
+package = export_analysis_package(
+    "analysis.zip", logs="translation-log.jsonl", knowledge_version=store.snapshot()
+)
+```
+
+For an imported proposal, call `preview_patch(proposal, analysis_package=...)`, show its
+operation/asset diff and replay report, then call `approve_patch(...)` only after the user
+approves that exact `candidate_version_id`. `rollback(version_id)` restores a retained version.
+`load_active_resolver()` opens the verified active `.mco` and matching versioned seed/frame map.
+See the full package and patch contracts in `docs/ARCHITECTURE.md` and `prompts/kg-maintenance.md`.
+
 ## Prototype CLI
 
 ```bash

@@ -65,6 +65,12 @@ threshold for an already-mapped semantic node. A rejected result is never
 rescued. Rolling back the event removes the learned bias without changing the
 Base KG or frame map.
 
+The Base KG has a separate semantic `routing_weight` on a frame-map node, bounded
+to `-0.10..0.10`. It adjusts that same UNKNOWN trace-rescue margin and is versioned
+only through an approved Knowledge Version patch. It does not select a node or
+change a seed entry's lexical `confidence`. When Base KG and user bias are combined,
+the total applied margin bias remains within `-0.10..0.10`.
+
 ## May update automatically
 
 - exact Translation Memory after an explicit correction

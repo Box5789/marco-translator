@@ -53,6 +53,11 @@ This is not a free-form fallback: the adapter still cannot invent a node, a fram
 
 Terminology decisions remain in `knowledge/seed.zh-ko.json`, so semantic routing and target terminology are versioned separately.
 
+The optional `routing_weight` belongs to the frame-map node. It is bounded to `-0.10..0.10`
+and adjusts only the mapped-node UNKNOWN trace-rescue margin. It cannot change the selected
+node, rescue a rejected result, or change lexical `confidence` in the seed. User Overlay bias
+remains user-scoped and is combined under the same total bound.
+
 ## Unknown contract
 
 If MARCO returns `rejected`, returns a low-confidence/unmapped `unknown`, selects an unmapped node, or the frame is outside the request's language/domain scope, the resolver returns an unresolved frame. The neural realizer is not allowed to invent a meaning for that frame.
@@ -69,4 +74,8 @@ mco compile marco -o build/zh-ko-gaming.mco \
   --marco-root /path/to/Marco
 ```
 
-The committed `.kg` source is authoritative. Generated `.mco` files are build artifacts and are not committed.
+The committed `.kg` source is authoritative. Generated `.mco` files are derived artifacts and
+are not committed to the source tree. A canonical Knowledge Version also records the frame map,
+the compiler-consumed style/axiom JSON inputs, build recipe hashes, clean MARCO checkout
+revision, `mco`/Python/dependency/platform details, and the actual `.mco` digest and size.
+The version store retains those `.mco` bytes as a verified derived runtime artifact.

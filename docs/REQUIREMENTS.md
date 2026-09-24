@@ -53,6 +53,7 @@
 | FR-015 | Tiny Neural Realizer는 Semantic Frame의 의미를 변경할 authority를 가져서는 안 된다. | H | realizer contract가 frame/terminology를 입력으로 받고 KG write path가 없다. | contract review/test |
 | FR-016 | 제품 contract는 macOS, Windows, Android, iOS 구현이 공유할 수 있게 플랫폼 UI/API와 분리되어야 한다. | H | public data contract에 특정 UI toolkit 타입이나 Python object identity가 요구되지 않는다. | architecture review |
 | FR-017 | runtime 로그/지식은 사용자의 명시적 동작 없이 외부 서비스로 전송되지 않아야 한다. | H | runtime path와 maintenance export path에 automatic network upload가 없다. | code/security review |
+| FR-018 | canonical Knowledge Version은 seed, MARCO `.kg`, frame map, `.mco` 빌드에 영향을 주는 style/config 입력, build provenance와 실제 파생 `.mco` digest를 식별해야 한다. | H | 저장·export·재오픈 시 asset digest, compiler provenance, derived `.mco` hash가 일치한다. | version-store and package integrity tests |
 
 ## Quality Attributes
 
@@ -84,7 +85,7 @@
 ## Assumptions
 
 - MARCO의 public `mco` API가 reference integration boundary로 유지된다.
-- P1-D에서는 기존 `kg-patch-v1`을 출발점으로 검토하되, persistent/public contract 변경이 필요하면 compatibility와 migration을 별도 기록한다.
+- P1-D는 사용자 승인에 따라 `kg-patch-v2`를 사용하고, seed-only `kg1_` version과 `kg-patch-v1`을 명시적으로 거부한다. 자동 migration은 없다.
 - 성능 수치는 Mac 실측 전 확정하지 않는다.
 
 ## Glossary
@@ -99,3 +100,4 @@
 | Maintenance Plane | 로그 export, 외부 분석, patch validation/approval/versioning 경로 |
 | Tiny Neural Realizer | Semantic Frame을 target-language sentence로 표현하는 local model |
 | Evidence ID | maintenance proposal이 원본 evidence를 안정적으로 가리키는 식별자 |
+| Knowledge Version | seed, MARCO source graph, frame map, compiler assets/provenance, verified derived-model digest를 묶는 immutable canonical snapshot |

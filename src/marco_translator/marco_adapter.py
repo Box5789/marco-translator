@@ -14,6 +14,7 @@ class MarcoUnavailable(RuntimeError):
 
 _ACCEPTABLE_STATUSES = {"answered", "needs_input", "observed"}
 _DEFAULT_UNKNOWN_TRACE_MARGIN = 0.90
+_MAX_ROUTING_WEIGHT = 0.10
 
 
 class MarcoResolver:
@@ -63,6 +64,12 @@ class MarcoResolver:
             raise ValueError("MARCO frame map requires an object 'frames'")
         self._source_language = str(doc.get("source_language") or "")
         self._target_language = str(doc.get("target_language") or "")
+        for node_id, spec in frames.items():
+            if not isinstance(node_id, str) or not isinstance(spec, dict):
+                raise ValueError("MARCO frame entries must map node IDs to objects")
+            weight = spec.get("routing_weight", 0.0)
+            if isinstance(weight, bool) or not isinstance(weight, (int, float)) or not -_MAX_ROUTING_WEIGHT <= weight <= _MAX_ROUTING_WEIGHT:
+                raise ValueError("frame-map routing_weight must be in -0.10..0.10")
         self._frames = frames
 
     @staticmethod
@@ -129,8 +136,12 @@ class MarcoResolver:
         evidence_winner, evidence_score = self._winner_from_evidence(result)
         node = winner if winner in self._frames else evidence_winner
         route_bias = 0.0
+        spec_for_bias = self._frames.get(node) if node else None
+        if isinstance(spec_for_bias, dict):
+            route_bias = float(spec_for_bias.get("routing_weight", 0.0))
         if node and self._routing_weights is not None:
-            route_bias = float(self._routing_weights.routing_weight(request.domain, node))
+            route_bias += float(self._routing_weights.routing_weight(request.domain, node))
+        route_bias = max(-_MAX_ROUTING_WEIGHT, min(_MAX_ROUTING_WEIGHT, route_bias))
         adjusted_margin = (
             max(0.0, min(1.0, judge_margin + route_bias))
             if judge_margin is not None else None

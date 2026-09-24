@@ -2,30 +2,114 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.invalid/marco-translator/kg-patch.schema.json",
   "title": "Marco Translator KG Patch Proposal",
+  "description": "A proposal-only patch against one canonical Knowledge Version. Stable targets use tgt1_ plus SHA-256 over canonical JSON {resource, kind, identity}.",
   "type": "object",
-  "required": ["schema_version", "patches"],
+  "required": ["schema_version", "base_kg_version", "patches"],
   "properties": {
-    "schema_version": {"const": "kg-patch-v1"},
-    "base_kg_version": {"type": ["string", "null"]},
+    "schema_version": {"const": "kg-patch-v2"},
+    "base_kg_version": {"type": "string", "pattern": "^kg2_[0-9a-f]{64}$"},
     "patches": {
       "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["type", "evidence_ids"],
-        "properties": {
-          "id": {"type": "string"},
-          "type": {"enum": ["ADD_ALIAS", "ADD_SENSE", "ADD_DOMAIN_SENSE", "ADD_RELATION", "ADD_PATTERN", "ADD_NEGATIVE_CONSTRAINT", "ADJUST_WEIGHT"]},
-          "expression": {"type": "string"},
-          "domain": {"type": ["string", "null"]},
-          "concept": {"type": "string"},
-          "preferred_expression": {"type": "string"},
-          "reason": {"type": "string"},
-          "evidence_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
-          "apply_automatically": {"const": false}
-        },
-        "additionalProperties": true
-      }
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/patch"}
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "$defs": {
+    "seedEntry": {
+      "type": "object",
+      "required": ["source", "concept", "target", "source_language", "target_language", "domain", "confidence"],
+      "properties": {
+        "source": {"type": "string", "minLength": 1},
+        "concept": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "source_language": {"type": "string", "minLength": 1},
+        "target_language": {"type": "string", "minLength": 1},
+        "domain": {"type": ["string", "null"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+      },
+      "additionalProperties": false
+    },
+    "patch": {
+      "type": "object",
+      "required": ["id", "type", "resource", "target", "expected_old_state", "proposed_new_state", "evidence_ids"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "type": {"enum": ["ADD_ALIAS", "ADD_SENSE", "ADD_DOMAIN_SENSE", "ADD_RELATION", "ADD_PATTERN", "ADD_NEGATIVE_CONSTRAINT", "ADJUST_WEIGHT"]},
+        "resource": {"enum": ["knowledge/seed.zh-ko.json", "knowledge/marco-frame-map.zh-ko.json", "marco/graphs/graph_zh_ko_gaming_semantics.kg"]},
+        "target": {"type": "string", "pattern": "^tgt1_[0-9a-f]{64}$"},
+        "expected_old_state": {},
+        "proposed_new_state": {},
+        "evidence_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^ev1_[0-9a-f]{64}$"}},
+        "reason": {"type": "string", "minLength": 1},
+        "apply_automatically": {"const": false}
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {"properties": {"type": {"const": "ADD_ALIAS"}}, "required": ["type"]},
+          "then": {
+            "properties": {"resource": {"const": "knowledge/seed.zh-ko.json"}, "expected_old_state": {"type": "null"}, "proposed_new_state": {"$ref": "#/$defs/seedEntry"}}
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "ADD_SENSE"}}, "required": ["type"]},
+          "then": {
+            "properties": {
+              "resource": {"const": "knowledge/seed.zh-ko.json"},
+              "expected_old_state": {"type": "null"},
+              "proposed_new_state": {
+                "allOf": [
+                  {"$ref": "#/$defs/seedEntry"},
+                  {"properties": {"domain": {"type": "null"}}}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "ADD_DOMAIN_SENSE"}}, "required": ["type"]},
+          "then": {
+            "properties": {
+              "resource": {"const": "knowledge/seed.zh-ko.json"},
+              "expected_old_state": {"type": "null"},
+              "proposed_new_state": {
+                "allOf": [
+                  {"$ref": "#/$defs/seedEntry"},
+                  {"properties": {"domain": {"type": "string", "minLength": 1}}}
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "ADD_PATTERN"}}, "required": ["type"]},
+          "then": {
+            "properties": {"resource": {"const": "marco/graphs/graph_zh_ko_gaming_semantics.kg"}, "expected_old_state": {"type": "null"}, "proposed_new_state": {"type": "object", "required": ["node_id", "expression"], "properties": {"node_id": {"type": "string", "minLength": 1}, "expression": {"type": "string", "minLength": 1}}, "additionalProperties": false}}
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "ADD_NEGATIVE_CONSTRAINT"}}, "required": ["type"]},
+          "then": {
+            "properties": {"resource": {"const": "marco/graphs/graph_zh_ko_gaming_semantics.kg"}, "expected_old_state": {"type": "null"}, "proposed_new_state": {"type": "object", "required": ["node_id", "expression"], "properties": {"node_id": {"const": "_잡담"}, "expression": {"type": "string", "minLength": 1}}, "additionalProperties": false}}
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "ADD_RELATION"}}, "required": ["type"]},
+          "then": {
+            "properties": {"resource": {"const": "marco/graphs/graph_zh_ko_gaming_semantics.kg"}, "expected_old_state": {"type": "null"}, "proposed_new_state": {"type": "object", "required": ["source_node", "relation", "target_node"], "properties": {"source_node": {"type": "string", "minLength": 1}, "relation": {"type": "string", "minLength": 1}, "target_node": {"type": "string", "minLength": 1}}, "additionalProperties": false}}
+          }
+        },
+        {
+          "if": {"properties": {"type": {"const": "ADJUST_WEIGHT"}}, "required": ["type"]},
+          "then": {
+            "oneOf": [
+              {"properties": {"resource": {"const": "knowledge/seed.zh-ko.json"}, "expected_old_state": {"type": "number", "minimum": 0, "maximum": 1}, "proposed_new_state": {"type": "number", "minimum": 0, "maximum": 1}}},
+              {"properties": {"resource": {"const": "knowledge/marco-frame-map.zh-ko.json"}, "expected_old_state": {"type": "number", "minimum": -0.1, "maximum": 0.1}, "proposed_new_state": {"type": "number", "minimum": -0.1, "maximum": 0.1}}}
+            ]
+          }
+        }
+      ]
+    }
+  }
 }

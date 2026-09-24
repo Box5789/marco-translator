@@ -67,14 +67,27 @@ Validation order:
 1. JSON schema
 2. allowed operation type
 3. referenced evidence exists
-4. base KG version check
-5. graph conflict / scope check
-6. corpus replay
-7. regression thresholds
-8. human diff and approval
-9. create a new KG version
+4. exact active `kg2_` Knowledge Version check
+5. resource-scoped stable target and expected-old-state check
+6. operation-specific seed / MARCO graph conflict and scope checks
+7. rebuild the derived `.mco` from the versioned graph and compiler assets
+8. replay the registered translation and literal/domain corpus
+9. reject regressed or failed oracle cases
+10. human approval of the exact replayed candidate version ID
+11. one SQLite transaction stores the immutable asset snapshot, verified derived `.mco`, lineage and active pointer
 
-P1-D owns the exact package, evidence identity, transaction and rollback contracts.
+The canonical version contains `knowledge/seed.zh-ko.json`, the translator MARCO `.kg`,
+`knowledge/marco-frame-map.zh-ko.json`, all consumed `marco/styles/*.json` and
+`marco/axioms/*.json`, build provenance and the actual derived `.mco` digest. The `.mco`
+bytes are retained and verified as a derived runtime artifact. A local materialized directory
+is a disposable cache; the SQLite snapshot is canonical.
+
+`kg-patch-v2` retains the seven operations but requires a closed `resource`, stable target,
+`expected_old_state`, `proposed_new_state` and evidence IDs on each operation. Seed
+`confidence` remains lexical confidence. Frame-map `routing_weight` is semantic and only
+adjusts the bounded MARCO UNKNOWN trace-rescue margin for an already mapped node.
+
+P1-D owns the exact package, evidence identity, Knowledge Version, transaction and rollback contracts.
 
 ## 5. MARCO integration
 

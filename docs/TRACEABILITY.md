@@ -11,19 +11,20 @@
 | FR-005 | ADR-002 | `user_state.py` | persistence tests |
 | FR-006, UC-004 | Session Binding | `user_state.py` | session isolation tests |
 | FR-017 | ADR-001 | runtime architecture | architecture/security review; P1-D must retain |
+| FR-018 | ADR-005, Knowledge Version v2 | `knowledge_version.KnowledgeVersionStore`, `marco_pack.compile_marco_pack` | `test_mac_version_bootstrap_reopens_and_materializes_verified_model`; package digest checks |
 
-## P1-D planned traceability
+## P1-D traceability
 
-| Requirement / Use Case | Analysis / Design element | Planned implementation surface | Required test evidence |
+| Requirement / Use Case | Analysis / Design element | Current implementation surface | Required test evidence |
 |---|---|---|---|
-| FR-007, UC-003 | Analysis Package | maintenance/export boundary | export round-trip |
-| FR-008 | Evidence identity contract | logger/evidence/export schema | deterministic ID/collision tests |
-| FR-009 | Patch trust boundary | validator/import boundary | malformed/disallowed/evidence/version/conflict tests |
-| FR-010 | Dry Run | patch preview service | no-mutation diff test |
-| FR-011 | Corpus Replay | replay/report boundary | before/after classification regression |
-| FR-012 | Approval gate | transaction/controller | no-approval no-change test |
-| FR-013 | Atomic version transaction | version store/transaction | injected failure atomicity |
-| FR-014 | Rollback | version store | rollback/restart integrity |
+| FR-007, UC-003 | Full Analysis Package | `maintenance.export_analysis_package`, `KnowledgeVersionStore.snapshot` | `test_analysis_package_carries_full_version_assets_mco_and_evidence_subsets`; atomic replacement and privacy tests |
+| FR-008 | Evidence identity contract | `maintenance.stable_evidence_id`, package reader | deterministic identity, duplicate/conflicting source ID, and package tamper tests |
+| FR-009 | `kg-patch-v2` trust boundary | `maintenance.load_analysis_package`, `load_patch_proposal`, `patches.validate_patch_document`, `apply_patch_operations` | `test_valid_patch_requires_v2_resource_identity_states_and_evidence`; all seven operations; stale state, unknown evidence, conflict, schema and unsafe archive tests |
+| FR-010 | Dry Run | `KnowledgeVersionStore.preview_patch` | `test_dry_run_replays_actual_marco_without_persisting_or_activating` |
+| FR-011 | Corpus Replay | actual MARCO rebuild + fixed regression and literal/domain corpus | deterministic eight-case before/after report; regression gate test |
+| FR-012 | Approval gate | `KnowledgeVersionStore.approve_patch` requires matching fresh candidate version ID | `test_explicit_approval_is_atomic_and_rollback_survives_restart_without_touching_user_state`; mismatched approval rejection |
+| FR-013 | Atomic version transaction | `versions`, `assets`, active pointer, activation history in one SQLite transaction | injected activation-log failure preserves active snapshot and version count |
+| FR-014 | Rollback | `KnowledgeVersionStore.rollback` | reopen store, restore exact assets and `.mco`, verify activation history |
 | QA-001 | Offline | runtime/maintenance local paths | network-disabled regression |
 | QA-002 | Determinism | replay + versioned inputs | repeatability test |
 | QA-003 | Fail safety | import/apply boundaries | corrupted input tests |
