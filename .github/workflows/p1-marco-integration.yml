@@ -1,0 +1,58 @@
+name: P1 MARCO integration
+
+on:
+  push:
+    branches:
+      - main
+      - p1/marco-semantic-adapter
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout translator
+        uses: actions/checkout@v4
+
+      - name: Checkout upstream MARCO
+        uses: actions/checkout@v4
+        with:
+          repository: DoTaeIn/Marco
+          path: upstream-marco
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy pytest
+          python -m pip install -e upstream-marco
+          python -m pip install -e .
+
+      - name: Unit tests
+        run: pytest -q tests/test_pipeline.py tests/test_maintenance.py tests/test_marco_adapter.py
+
+      - name: Build translator MCO
+        run: |
+          python scripts/build_marco_pack.py \
+            --marco-root upstream-marco \
+            --output build/zh-ko-gaming.mco
+
+      - name: Actual MARCO integration tests
+        env:
+          MCO_MARCO_ROOT: ${{ github.workspace }}/upstream-marco
+          MARCO_TRANSLATOR_MCO: ${{ github.workspace }}/build/zh-ko-gaming.mco
+        run: pytest -q tests/test_marco_integration.py
+
+      - name: Upload compiled P1 model
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zh-ko-gaming-mco
+          path: build/zh-ko-gaming.mco
+          if-no-files-found: ignore
