@@ -1,6 +1,19 @@
 """Marco Translator reference runtime."""
 
-from .models import TranslationRequest, TranslationResult, SemanticFrame
+from .knowledge import KnowledgeStore, LayeredKnowledgeStore
+from .models import CorrectionReceipt, SemanticFrame, TranslationRequest, TranslationResult
 from .pipeline import Translator
+from .user_state import OverlayProposal, SessionStateStore, SQLiteUserOverlay
 
-__all__ = ["TranslationRequest", "TranslationResult", "SemanticFrame", "Translator"]
+__all__ = [
+    "CorrectionReceipt",
+    "KnowledgeStore",
+    "LayeredKnowledgeStore",
+    "OverlayProposal",
+    "SemanticFrame",
+    "SessionStateStore",
+    "SQLiteUserOverlay",
+    "TranslationRequest",
+    "TranslationResult",
+    "Translator",
+]
