@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from .knowledge import KnowledgeStore
+from .knowledge import KnowledgeStore, bind_term_slots
 from .models import SemanticFrame, TranslationRequest
 
 
@@ -15,10 +15,11 @@ class Pattern:
     intent: str = "statement"
     style: str = "neutral"
     confidence: float = 1.0
+    slot_terms: dict[str, str] = field(default_factory=dict)
 
 
 DEFAULT_PATTERNS = (
-    Pattern("西边有狙", "{location}에 {entity} 있음", {"location": "서쪽", "entity": "저격수"}, "gaming", "warning", "gaming"),
+    Pattern("西边有狙", "{location}에 {entity} 있음", {"location": "서쪽", "entity": "저격수"}, "gaming", "warning", "gaming", slot_terms={"entity": "狙"}),
     Pattern("集合一波去啊", "{group} {push}", {"group": "뭉쳐서", "push": "한 번에 밀자"}, "gaming", "request", "gaming"),
     Pattern("一个一个送没辙", "{one_by_one} {feed} {hopeless}", {"one_by_one": "한 명씩 가서", "feed": "죽어주면", "hopeless": "답이 없어"}, "gaming", "complaint", "gaming"),
     Pattern("家里有人", "{base}에 {enemy} 있음", {"base": "본진", "enemy": "적"}, "gaming", "warning", "gaming", 0.95),
@@ -30,10 +31,16 @@ class DeterministicResolver:
     def __init__(self, knowledge: KnowledgeStore, patterns=DEFAULT_PATTERNS) -> None:
         self.knowledge = knowledge
         self.patterns = tuple(patterns)
+        for pattern in self.patterns:
+            bind_term_slots(pattern.slots, pattern.slot_terms, ())
 
     def resolve(self, request: TranslationRequest) -> SemanticFrame:
         for pattern in self.patterns:
             if pattern.source == request.text and (pattern.domain is None or pattern.domain == request.domain):
+                terms = self.knowledge.resolve_terms(
+                    request.text, request.source_language, request.target_language,
+                    request.domain, session_id=request.session_id
+                )
                 return SemanticFrame(
                     source_language=request.source_language,
                     target_language=request.target_language,
@@ -41,12 +48,9 @@ class DeterministicResolver:
                     domain=request.domain,
                     intent=pattern.intent,
                     style=request.style if request.style != "neutral" else pattern.style,
-                    terms=self.knowledge.resolve_terms(
-                        request.text, request.source_language, request.target_language,
-                        request.domain, session_id=request.session_id
-                    ),
+                    terms=terms,
                     template=pattern.template,
-                    slots=dict(pattern.slots),
+                    slots=bind_term_slots(pattern.slots, pattern.slot_terms, terms),
                     confidence=pattern.confidence,
                 )
 

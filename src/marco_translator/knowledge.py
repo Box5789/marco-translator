@@ -1,11 +1,42 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 import json
 from pathlib import Path
 from typing import Iterable
 
 from .models import TermDecision
+
+
+def bind_term_slots(slots: Mapping[str, str], slot_terms: Mapping[str, str],
+                    terms: Iterable[TermDecision]) -> dict[str, str]:
+    """Bind already-selected personal terms to explicitly declared slots.
+
+    Keys are slot names; values are exact source expressions, not target text
+    to search/replace. Knowledge resolution owns scope and precedence. Base
+    terms keep the authored (possibly inflected) default. Missing bindings
+    preserve legacy frames, and neither defaults nor selected terms mutate.
+    """
+    if not isinstance(slot_terms, Mapping):
+        raise ValueError("slot_terms must be an object")
+    resolved = dict(slots)
+    selected = list(terms)
+    for slot, source in slot_terms.items():
+        if not isinstance(slot, str) or slot not in resolved:
+            raise ValueError("slot_terms must reference an existing slot")
+        if not isinstance(source, str) or not source.strip():
+            raise ValueError("slot_terms sources must be non-empty strings")
+        matches = [term for term in selected if term.source == source
+                   and term.layer in {"user", "session"}]
+        if len(matches) > 1:
+            raise ValueError("slot term must already have a single selected meaning")
+        if matches:
+            target = matches[0].target
+            if not isinstance(target, str) or not target.strip():
+                raise ValueError("selected slot term must have a non-empty target")
+            resolved[slot] = target
+    return resolved
 
 
 @dataclass(frozen=True)

@@ -9,6 +9,7 @@
       "style": "gaming",
       "template": "{location}에 {entity} 있음",
       "slots": {"location": "서쪽", "entity": "저격수"},
+      "slot_terms": {"entity": "狙"},
       "confidence": 0.99
     },
     "ZH_GAMING_BASE_ENEMY": {

@@ -5,6 +5,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+from .knowledge import bind_term_slots
 from .models import SemanticFrame, TranslationRequest
 
 
@@ -63,6 +64,9 @@ class MarcoResolver:
             raise ValueError("MARCO frame map requires an object 'frames'")
         self._source_language = str(doc.get("source_language") or "")
         self._target_language = str(doc.get("target_language") or "")
+        for spec in frames.values():
+            if isinstance(spec, dict) and "slot_terms" in spec:
+                bind_term_slots(spec.get("slots") or {}, spec["slot_terms"], ())
         self._frames = frames
 
     @staticmethod
@@ -185,7 +189,10 @@ class MarcoResolver:
             style=request.style if request.style != "neutral" else str(spec.get("style") or "neutral"),
             terms=terms,
             template=spec.get("template") if isinstance(spec.get("template"), str) else None,
-            slots={str(k): str(v) for k, v in (spec.get("slots") or {}).items()},
+            slots=bind_term_slots(
+                {str(k): str(v) for k, v in (spec.get("slots") or {}).items()},
+                spec.get("slot_terms", {}), terms,
+            ),
             unresolved=[],
             confidence=confidence,
         )
