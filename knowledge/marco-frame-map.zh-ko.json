@@ -1,0 +1,47 @@
+{
+  "schema_version": "marco-frame-map-v1",
+  "source_language": "zh",
+  "target_language": "ko",
+  "frames": {
+    "ZH_GAMING_WEST_SNIPER": {
+      "domain": "gaming",
+      "intent": "warning",
+      "style": "gaming",
+      "template": "{location}에 {entity} 있음",
+      "slots": {"location": "서쪽", "entity": "저격수"},
+      "confidence": 0.99
+    },
+    "ZH_GAMING_BASE_ENEMY": {
+      "domain": "gaming",
+      "intent": "warning",
+      "style": "gaming",
+      "template": "{base}에 {enemy} 있음",
+      "slots": {"base": "본진", "enemy": "적"},
+      "confidence": 0.95
+    },
+    "ZH_GAMING_CHURCH_MATERIALS": {
+      "domain": "gaming",
+      "intent": "request",
+      "style": "gaming",
+      "template": "{location}에 {object}가 필요함",
+      "slots": {"location": "교회", "object": "건축 자재"},
+      "confidence": 0.99
+    },
+    "ZH_GAMING_GROUP_PUSH": {
+      "domain": "gaming",
+      "intent": "request",
+      "style": "gaming",
+      "template": "{group} {push}",
+      "slots": {"group": "뭉쳐서", "push": "한 번에 밀자"},
+      "confidence": 0.96
+    },
+    "ZH_GAMING_STOP_FEEDING": {
+      "domain": "gaming",
+      "intent": "complaint",
+      "style": "gaming",
+      "template": "{one_by_one} {feed} {hopeless}",
+      "slots": {"one_by_one": "한 명씩 가서", "feed": "죽어주면", "hopeless": "답이 없어"},
+      "confidence": 0.94
+    }
+  }
+}

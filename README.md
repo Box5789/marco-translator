@@ -92,3 +92,9 @@ python -m marco_translator.cli "家里有人" --domain gaming --json
 ```
 
 The current prototype is a **reference implementation** of the runtime boundaries. MARCO's stable `mco` API is wrapped behind an adapter so the mobile/native runtime can later replace the Python reference without changing the contracts.
+
+## MARCO adapter contract
+
+The P1 adapter uses MARCO as a **semantic selector**. Raw source text is sent to the `.mco` model; the selected graph node is read from the public `mco.Result` trace/evidence contract and deterministically mapped to a `SemanticFrame`. MARCO is not asked to generate Korean or free-form semantic JSON.
+
+See `docs/MARCO_PROTOCOL.md` and `marco/graphs/graph_zh_ko_gaming_semantics.kg`.
