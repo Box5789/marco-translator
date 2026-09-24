@@ -107,3 +107,15 @@ def test_route_bias_is_clamped(tmp_path):
     _, overlay, _ = make_adaptive(tmp_path)
     overlay.adjust_routing_weight("gaming", "X", 999)
     assert overlay.routing_weight("gaming", "X") == pytest.approx(0.10)
+
+
+def test_session_binding_is_visible_to_semantic_frame_for_partial_mentions(tmp_path):
+    translator, _, _ = make_adaptive(tmp_path)
+    translator.bind_session_entity("s1", "Luka", "루카", domain="gaming")
+    result = translator.translate(
+        TranslationRequest("敌人Luka", domain="gaming", session_id="s1")
+    )
+    assert result.path == "unresolved"
+    assert [(t.source, t.target, t.layer) for t in result.frame.terms] == [
+        ("Luka", "루카", "session")
+    ]

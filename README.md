@@ -98,3 +98,38 @@ The current prototype is a **reference implementation** of the runtime boundarie
 The P1 adapter uses MARCO as a **semantic selector**. Raw source text is sent to the `.mco` model; the selected graph node is read from the public `mco.Result` trace/evidence contract and deterministically mapped to a `SemanticFrame`. MARCO is not asked to generate Korean or free-form semantic JSON.
 
 See `docs/MARCO_PROTOCOL.md` and `marco/graphs/graph_zh_ko_gaming_semantics.kg`.
+
+
+## Adaptive user state
+
+P1-C keeps personal adaptation outside the verified Base KG.
+
+```python
+from marco_translator import (
+    KnowledgeStore, LayeredKnowledgeStore, SessionStateStore,
+    SQLiteUserOverlay, TranslationRequest, Translator,
+)
+from marco_translator.resolver import DeterministicResolver
+from marco_translator.tm import SQLiteTranslationMemory
+
+base = KnowledgeStore.from_json("knowledge/seed.zh-ko.json")
+overlay = SQLiteUserOverlay("user-overlay.db")
+sessions = SessionStateStore()
+knowledge = LayeredKnowledgeStore(base, user_overlay=overlay, sessions=sessions)
+
+translator = Translator(
+    resolver=DeterministicResolver(knowledge),
+    tm=SQLiteTranslationMemory("translation-memory.db"),
+    user_overlay=overlay,
+    sessions=sessions,
+)
+
+request = TranslationRequest("西边有狙", domain="gaming")
+result = translator.translate(request)
+translator.correct(request, "서쪽 스나 있음", result=result)
+```
+
+Explicit corrections go straight to exact Translation Memory. Repeated identical
+corrections create a **pending** local overlay proposal; the runtime does not
+auto-approve it. Session entity bindings are memory-only. User routing bias is
+bounded and reversible. See `docs/AUTOMATIC_LEARNING.md`.
