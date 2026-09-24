@@ -1,0 +1,40 @@
+{
+  "이름": "marco-translator-runtime",
+  "인코더": {
+    "mode": "문자",
+    "dimensions": 4096,
+    "jamo_weight": 0.5,
+    "smoothing": 0,
+    "route_threshold": 0.43,
+    "cluster_threshold": 0.3,
+    "goal_similarity_threshold": 0.62,
+    "device": "cpu"
+  },
+  "대화이해": {
+    "shell_risks": {},
+    "templates": []
+  },
+  "외부조사": {
+    "의도": []
+  },
+  "응답구성": {
+    "계획표지": []
+  },
+  "답못함": {
+    "ask_more": "입력을 더 구체적으로 알려 주세요.",
+    "off_topic": "등록된 번역 의미 범위 밖의 입력입니다.",
+    "uncertain_topic": "의미를 확실하게 고르지 못했습니다.",
+    "no_evidence": "근거가 부족해 의미를 확정하지 않습니다.",
+    "clarify": "입력을 더 구체적으로 알려 주세요.",
+    "argument_no_evidence": "근거가 부족해 의미를 확정하지 않습니다.",
+    "web_learn_failed": "외부 학습은 이 런타임에서 사용하지 않습니다.",
+    "web_no_source": "검증 가능한 외부 원문이 없습니다.",
+    "web_heading": "외부 근거",
+    "web_intro": "외부 근거를 확인합니다.",
+    "web_source_heading": "원문",
+    "web_source_line": "출처",
+    "no_graph_selected": "등록된 번역 의미를 찾지 못했습니다.",
+    "plan_no_topic": "학습할 주제를 고르지 못했습니다.",
+    "plan_no_sources": "검증 가능한 원문 출처가 없습니다."
+  }
+}
