@@ -6,6 +6,7 @@ on:
       - main
       - p1/marco-semantic-adapter
       - p1/user-overlay
+      - p1/engineering-baseline-macos
   pull_request:
   workflow_dispatch:
 
