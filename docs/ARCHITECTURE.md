@@ -56,7 +56,7 @@ Priority:
 
 P1 does not call a general-purpose LLM from the runtime.
 
-Target for the eventual in-app model: roughly 100–300M parameters, INT4, short semantic-frame input, 10–30 token output. This is a benchmark target, not a fixed architecture.
+The eventual local model size/runtime is a benchmark decision. A 100–300M INT4 realizer remains a candidate target, not a fixed architecture. P1-E must measure semantic preservation, terminology compliance, latency, peak RAM, model size and neural invocation rate on the same macOS workload before a product decision.
 
 ## 4. Maintenance plane
 
@@ -74,8 +74,24 @@ Validation order:
 8. human diff and approval
 9. create a new KG version
 
+P1-D owns the exact package, evidence identity, transaction and rollback contracts.
+
 ## 5. MARCO integration
 
-Use MARCO through its stable `mco` API rather than internal modules. A translator-specific `.mco` model should return a compact, grounded semantic frame. The current Python `MarcoResolver` is the integration boundary; native/mobile implementations should preserve the contract rather than embed Python internals.
+Use MARCO through its stable `mco` API rather than internal modules. A translator-specific `.mco` model selects grounded semantic identity that the adapter maps into a `SemanticFrame`. The current Python `MarcoResolver` is the reference integration boundary.
 
 No code from MARCO is vendored in this repository. MARCO is Apache-2.0 and is treated as an external engine/runtime dependency during the reference phase.
+
+## 6. Cross-platform boundary
+
+Target product platforms are:
+- macOS
+- Windows
+- Android
+- iOS
+
+Current direct validation is macOS-first.
+
+Shared semantic, persistence and maintenance contracts must not require platform UI types or Python object identity. Screen capture, OCR, overlay/UI, model acceleration, permissions and lifecycle are expected platform variation points.
+
+The shared native core implementation technology is intentionally undecided until P1-F. See `docs/PLATFORM_STRATEGY.md`.

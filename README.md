@@ -2,10 +2,23 @@
 
 A deterministic-first, offline translation engine built around **MARCO** as the semantic memory / terminology resolver, with a **tiny in-app neural realizer** used only when rule-based realization is insufficient.
 
+Target product platforms are **macOS, Windows, Android, and iOS**. Current direct development/validation is **macOS-first**, while shared runtime contracts remain platform-independent.
+
 The project is intentionally split into two planes:
 
-- **Runtime plane**: offline, fast, read-mostly knowledge, small model, mobile-friendly.
+- **Runtime plane**: offline, fast, read-mostly knowledge, small model, cross-platform oriented.
 - **Maintenance plane**: logs are exported by the user and analyzed by an external capable LLM; the LLM can only propose a schema-valid KG patch. The app validates, previews and applies patches only after explicit user approval.
+
+## Engineering workflow
+
+All development follows `$apply-software-engineering-discipline`.
+
+Start with:
+- `AGENTS.md`
+- `AGENT_GUIDE.md`
+- `work/current.md`
+
+Then follow the canonical docs referenced there. The current Python package is a reference implementation; cross-platform native-core technology has not yet been selected.
 
 ## Core principles
 
@@ -14,7 +27,7 @@ The project is intentionally split into two planes:
 3. Safe adaptive state is allowed: translation memory, user terminology, OCR corrections, session context and routing weights.
 4. New concepts / senses / relations are maintenance operations, not runtime learning.
 5. Every important decision can be logged and replayed for regression testing.
-6. Mobile constraints are first-class: short contexts, INT4-friendly realizer target, local-only runtime, low neural invocation rate.
+6. Resource and platform constraints are first-class; concrete performance targets are set from measurement rather than guessed.
 
 ## Initial target
 
@@ -82,7 +95,7 @@ human diff / approval
 new KG version
 ```
 
-See `docs/ARCHITECTURE.md` and `docs/P1.md`.
+See `docs/ARCHITECTURE.md`, `docs/REQUIREMENTS.md`, and `docs/P1.md`.
 
 ## Prototype CLI
 
@@ -91,14 +104,13 @@ python -m marco_translator.cli "西边有狙" --domain gaming
 python -m marco_translator.cli "家里有人" --domain gaming --json
 ```
 
-The current prototype is a **reference implementation** of the runtime boundaries. MARCO's stable `mco` API is wrapped behind an adapter so the mobile/native runtime can later replace the Python reference without changing the contracts.
+The current prototype is a **reference implementation** of the runtime boundaries. MARCO's stable `mco` API is wrapped behind an adapter so later product runtimes can preserve the contracts without depending on Python internals.
 
 ## MARCO adapter contract
 
 The P1 adapter uses MARCO as a **semantic selector**. Raw source text is sent to the `.mco` model; the selected graph node is read from the public `mco.Result` trace/evidence contract and deterministically mapped to a `SemanticFrame`. MARCO is not asked to generate Korean or free-form semantic JSON.
 
 See `docs/MARCO_PROTOCOL.md` and `marco/graphs/graph_zh_ko_gaming_semantics.kg`.
-
 
 ## Adaptive user state
 
@@ -129,7 +141,4 @@ result = translator.translate(request)
 translator.correct(request, "서쪽 스나 있음", result=result)
 ```
 
-Explicit corrections go straight to exact Translation Memory. Repeated identical
-corrections create a **pending** local overlay proposal; the runtime does not
-auto-approve it. Session entity bindings are memory-only. User routing bias is
-bounded and reversible. See `docs/AUTOMATIC_LEARNING.md`.
+Explicit corrections go straight to exact Translation Memory. Repeated identical corrections create a **pending** local overlay proposal; the runtime does not auto-approve it. Session entity bindings are memory-only. User routing bias is bounded and reversible. See `docs/AUTOMATIC_LEARNING.md`.
