@@ -1,0 +1,15 @@
+{
+  "schema_version": "knowledge-seed-v1",
+  "entries": [
+    {"source":"狙","concept":"SNIPER","target":"저격수","domain":"gaming","confidence":0.99},
+    {"source":"复活车","concept":"RESPAWN_VEHICLE","target":"리스폰 차량","domain":"gaming","confidence":0.99},
+    {"source":"建材","concept":"CONSTRUCTION_MATERIAL","target":"건축 자재","domain":"gaming","confidence":0.99},
+    {"source":"载具","concept":"VEHICLE","target":"차량","domain":"gaming","confidence":0.98},
+    {"source":"外挂","concept":"CHEAT_SOFTWARE","target":"핵","domain":"gaming","confidence":0.99},
+    {"source":"挂","concept":"CHEAT_SOFTWARE","target":"핵","domain":"gaming","confidence":0.94},
+    {"source":"送","concept":"FEED_ENEMY","target":"킬 헌납","domain":"gaming","confidence":0.94},
+    {"source":"家里","concept":"HOME","target":"집","confidence":1.0},
+    {"source":"家里","concept":"OWN_BASE","target":"본진","domain":"gaming","confidence":0.95},
+    {"source":"FOB","concept":"FORWARD_OPERATING_BASE","target":"FOB","domain":"gaming","confidence":1.0}
+  ]
+}

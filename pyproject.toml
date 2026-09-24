@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marco-translator"
+version = "0.1.0"
+description = "Deterministic-first offline translator with MARCO semantic memory and a tiny neural realizer fallback."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "Box5789"}]
+dependencies = []
+
+[project.optional-dependencies]
+marco = ["numpy"]
+test = ["pytest>=7"]
+
+[project.scripts]
+marco-translate = "marco_translator.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

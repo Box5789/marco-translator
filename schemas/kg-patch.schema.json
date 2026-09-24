@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/marco-translator/kg-patch.schema.json",
+  "title": "Marco Translator KG Patch Proposal",
+  "type": "object",
+  "required": ["schema_version", "patches"],
+  "properties": {
+    "schema_version": {"const": "kg-patch-v1"},
+    "base_kg_version": {"type": ["string", "null"]},
+    "patches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "evidence_ids"],
+        "properties": {
+          "id": {"type": "string"},
+          "type": {"enum": ["ADD_ALIAS", "ADD_SENSE", "ADD_DOMAIN_SENSE", "ADD_RELATION", "ADD_PATTERN", "ADD_NEGATIVE_CONSTRAINT", "ADJUST_WEIGHT"]},
+          "expression": {"type": "string"},
+          "domain": {"type": ["string", "null"]},
+          "concept": {"type": "string"},
+          "preferred_expression": {"type": "string"},
+          "reason": {"type": "string"},
+          "evidence_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "apply_automatically": {"const": false}
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": false
+}

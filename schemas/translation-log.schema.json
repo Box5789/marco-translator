@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/marco-translator/translation-log.schema.json",
+  "title": "Marco Translator Translation Log",
+  "type": "object",
+  "required": ["schema_version", "id", "timestamp", "request", "result"],
+  "properties": {
+    "schema_version": {"const": "translation-log-v1"},
+    "id": {"type": "string"},
+    "timestamp": {"type": "string"},
+    "request": {"type": "object"},
+    "result": {"type": "object"},
+    "user_correction": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}
