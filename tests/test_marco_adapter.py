@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import pytest
+
 from marco_translator.knowledge import KnowledgeStore
 from marco_translator.marco_adapter import MarcoResolver
 from marco_translator.models import TranslationRequest
