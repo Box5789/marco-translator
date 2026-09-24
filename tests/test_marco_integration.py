@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
@@ -18,15 +19,18 @@ MARCO_ROOT = os.environ.get("MCO_MARCO_ROOT")
 pytestmark = pytest.mark.skipif(not MODEL, reason="MARCO_TRANSLATOR_MCO is not set")
 
 
-def make_translator() -> Translator:
+def make_resolver() -> MarcoResolver:
     knowledge = KnowledgeStore.from_json(ROOT / "knowledge" / "seed.zh-ko.json")
-    resolver = MarcoResolver(
+    return MarcoResolver(
         MODEL,
         str(ROOT / "knowledge" / "marco-frame-map.zh-ko.json"),
         knowledge=knowledge,
         marco_root=MARCO_ROOT,
     )
-    return Translator(resolver=resolver)
+
+
+def make_translator() -> Translator:
+    return Translator(resolver=make_resolver())
 
 
 @pytest.mark.parametrize(("source", "expected"), [
@@ -38,7 +42,12 @@ def make_translator() -> Translator:
 ])
 def test_actual_marco_pack_resolves_seed_regressions(source: str, expected: str):
     result = make_translator().translate(TranslationRequest(source, domain="gaming"))
-    assert result.translated_text == expected, result.to_dict()
+    if result.translated_text != expected:
+        probe = make_resolver()._model.run(source)
+        pytest.fail(json.dumps({
+            "translation": result.to_dict(),
+            "marco": probe.to_dict(include_raw=True),
+        }, ensure_ascii=False, indent=2))
     assert result.path == "rule"
     assert result.confidence > 0
 
