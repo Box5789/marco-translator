@@ -1,6 +1,6 @@
 # Current Task — P1-D Knowledge Maintenance
 
-Status: Implementation and validation complete; commit/push pending
+Status: Complete — P1-D validated and pushed to `p1/engineering-baseline-macos`
 Branch: `p1/engineering-baseline-macos`  
 Baseline commit before this engineering setup: `06b8954fd0851e361707b5b11d491b90148a887b`
 
@@ -15,7 +15,7 @@ Baseline commit before this engineering setup: `06b8954fd0851e361707b5b11d491b90
 ## Current stage
 
 Engineering Baseline: prepared  
-P1-D implementation: complete; all AC-D1–AC-D12 and full offline regression validated on macOS
+P1-D implementation/delivery: complete; all AC-D1–AC-D12 validated, committed, and pushed
 
 ## Accepted decisions
 
@@ -353,7 +353,7 @@ All operations require resource, stable target ID, exact expected old state, pro
 - Current stage: implementing `kg-patch-v2`, canonical asset/build provenance identity, dry-run/replay, explicit approval, atomic version activation and restart rollback.
 - Residual risk: compatibility with v1 is intentionally rejection-only; no migration has been specified. Native cross-platform storage is P1-F and remains out of scope.
 
-## Engineering Record — P1-D completion and delivery preparation (2026-09-24)
+## Engineering Record — P1-D completion and verified delivery (2026-09-24)
 
 ### Implementation outcome
 
@@ -378,4 +378,5 @@ All operations require resource, stable target ID, exact expected old state, pro
 
 - AC-D1 through AC-D12 are validated; `docs/P1.md`, `docs/TRACEABILITY.md`, requirements, architecture, MARCO protocol, test strategy, maintenance prompt, and this record reflect the implemented contract.
 - Deliberate compatibility boundary: `kg-patch-v1` and `kg1_` identities are rejected; no migration was specified. Native Windows/Android/iOS storage, P1-E, and P1-F remain outside this task's approved scope.
-- Current delivery state: Korean commit and push to `p1/engineering-baseline-macos` are pending; verify the remote branch equals local HEAD before marking delivery complete.
+- Korean implementation commit `5b221dfb9937018739a3c9a9e727e7b7d55d128c` (`P1-D 지식 관리와 원자적 버전 전환 완성`) was pushed to `origin/p1/engineering-baseline-macos`. A direct `git ls-remote` check confirmed the remote ref matched local HEAD at that commit.
+- This final Engineering Record update is committed and pushed to the same branch. Final delivery verification compares the local and remote branch refs after this update.
