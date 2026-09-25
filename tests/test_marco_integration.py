@@ -53,6 +53,17 @@ def test_actual_marco_pack_resolves_seed_regressions(source: str, expected: str)
 
 
 def test_actual_marco_pack_declines_unregistered_input():
-    result = make_translator().translate(TranslationRequest("完全未知的新句子", domain="gaming"))
+    class Guess:
+        called = False
+
+        def realize(self, frame):
+            self.called = True
+            return "추측 번역"
+
+    neural = Guess()
+    result = Translator(resolver=make_resolver(), neural_realizer=neural).translate(
+        TranslationRequest("完全未知的新句子", domain="gaming")
+    )
     assert result.path == "unresolved", result.to_dict()
     assert result.translated_text == ""
+    assert not neural.called

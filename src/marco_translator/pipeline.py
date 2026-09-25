@@ -53,7 +53,7 @@ class Translator:
             self._log(req, result)
             return result
 
-        generated = self.neural_realizer.realize(frame)
+        generated = self.neural_realizer.realize(frame) if not frame.unresolved else None
         if generated:
             result = TranslationResult(req.text, generated, "neural-realizer", frame.confidence, frame=frame)
             self._log(req, result)

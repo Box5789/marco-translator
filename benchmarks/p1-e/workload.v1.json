@@ -1,0 +1,134 @@
+{
+  "schema_version": "p1-e-semantic-frame-workload-v1",
+  "source_identity": {
+    "translator_commit": "174b05f4e3a132e682068fbfeafcb0d56520be67",
+    "marco_repository": "https://github.com/DoTaeIn/Marco",
+    "marco_revision": "ffedc8b8552505e515b8f5ea2ae7f9934d7ef58e",
+    "mco_sha256": "3f38aa5f1237170dbb5cf5a9cdbe19ab3d309c973b2d581bdc6f28463adeb627",
+    "frame_map_sha256": "573cf813df6d513a0536fba9819ae86284619ad24f1b4632d8887483c86699fa",
+    "seed_sha256": "3e21404f1cbbafeaba3fa515fbd51e8d2ca2fe272e221a14733a66140b5fff8a"
+  },
+  "frames": [
+    {
+      "case_id": "west_sniper_warning",
+      "frame": {
+        "source_language": "zh",
+        "target_language": "ko",
+        "source_text": "西边有狙",
+        "domain": "gaming",
+        "intent": "warning",
+        "style": "gaming",
+        "terms": [
+          {"source": "狙", "concept": "SNIPER", "target": "저격수", "confidence": 0.99, "layer": "base", "evidence": []}
+        ],
+        "template": "{location}에 {entity} 있음",
+        "slots": {"location": "서쪽", "entity": "저격수"},
+        "unresolved": [],
+        "confidence": 0.99
+      },
+      "rule_expected": "서쪽에 저격수 있음",
+      "oracle": {
+        "required_slots": ["서쪽", "저격수"],
+        "required_terminology": ["저격수"],
+        "forbidden_fragments": ["없음", "없다", "없습니다", "아님", "게임을 진행할 수 있는 공간"]
+      }
+    },
+    {
+      "case_id": "base_enemy_warning",
+      "frame": {
+        "source_language": "zh",
+        "target_language": "ko",
+        "source_text": "家里有人",
+        "domain": "gaming",
+        "intent": "warning",
+        "style": "gaming",
+        "terms": [
+          {"source": "家里", "concept": "OWN_BASE", "target": "본진", "confidence": 0.95, "layer": "base", "evidence": []}
+        ],
+        "template": "{base}에 {enemy} 있음",
+        "slots": {"base": "본진", "enemy": "적"},
+        "unresolved": [],
+        "confidence": 0.95
+      },
+      "rule_expected": "본진에 적 있음",
+      "oracle": {
+        "required_slots": ["본진", "적"],
+        "required_terminology": ["본진"],
+        "forbidden_fragments": ["없음", "없다", "없습니다", "아님", "본진이 적을 방어"]
+      }
+    },
+    {
+      "case_id": "church_materials_request",
+      "frame": {
+        "source_language": "zh",
+        "target_language": "ko",
+        "source_text": "教堂需要建材",
+        "domain": "gaming",
+        "intent": "request",
+        "style": "gaming",
+        "terms": [
+          {"source": "建材", "concept": "CONSTRUCTION_MATERIAL", "target": "건축 자재", "confidence": 0.99, "layer": "base", "evidence": []}
+        ],
+        "template": "{location}에 {object}가 필요함",
+        "slots": {"location": "교회", "object": "건축 자재"},
+        "unresolved": [],
+        "confidence": 0.933
+      },
+      "rule_expected": "교회에 건축 자재가 필요함",
+      "oracle": {
+        "required_slots": ["교회", "건축 자재"],
+        "required_terminology": ["건축 자재"],
+        "forbidden_fragments": ["필요 없다", "필요 없음", "불필요", "필요하지 않", "건축 작업을 진행 중"]
+      }
+    },
+    {
+      "case_id": "group_push_request",
+      "frame": {
+        "source_language": "zh",
+        "target_language": "ko",
+        "source_text": "集合一波去啊",
+        "domain": "gaming",
+        "intent": "request",
+        "style": "gaming",
+        "terms": [],
+        "template": "{group} {push}",
+        "slots": {"group": "뭉쳐서", "push": "한 번에 밀자"},
+        "unresolved": [],
+        "confidence": 0.933
+      },
+      "rule_expected": "뭉쳐서 한 번에 밀자",
+      "oracle": {
+        "required_slots": ["뭉쳐서", "한 번에 밀자"],
+        "required_terminology": [],
+        "forbidden_fragments": ["하지 말", "안 밀", "후퇴하자", "망치던 게임"]
+      }
+    },
+    {
+      "case_id": "stop_feeding_complaint",
+      "frame": {
+        "source_language": "zh",
+        "target_language": "ko",
+        "source_text": "一个一个送没辙",
+        "domain": "gaming",
+        "intent": "complaint",
+        "style": "gaming",
+        "terms": [
+          {"source": "送", "concept": "FEED_ENEMY", "target": "킬 헌납", "confidence": 0.94, "layer": "base", "evidence": []}
+        ],
+        "template": "{one_by_one} {feed} {hopeless}",
+        "slots": {"one_by_one": "한 명씩 가서", "feed": "죽어주면", "hopeless": "답이 없어"},
+        "unresolved": [],
+        "confidence": 0.933
+      },
+      "rule_expected": "한 명씩 가서 죽어주면 답이 없어",
+      "oracle": {
+        "required_slots": ["한 명씩 가서", "죽어주면", "답이 없어"],
+        "required_terminology": ["킬 헌납"],
+        "forbidden_fragments": ["괜찮", "좋아", "문제없", "코스닥", "쇼트"]
+      }
+    }
+  ],
+  "invocation_cases": [
+    {"case_id": "unknown_input", "source_text": "完全未知的新句子", "domain": "gaming", "grounded": false}
+  ]
+}

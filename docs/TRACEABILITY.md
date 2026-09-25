@@ -35,3 +35,12 @@
 | QA-010 | Compatibility | versioned schema | version/migration/rejection tests |
 
 이 matrix는 구현 중 실제 파일/테스트 이름으로 갱신한다. 계획된 surface를 source inspection 전에 고정된 class/API로 해석하지 않는다.
+
+## P1-E traceability
+
+| Requirement / Use Case | Analysis / Design element | Current implementation / artifact | Test / Evidence |
+|---|---|---|---|
+| FR-002, FR-015, UC-001 | ADR-003 and ADR-006; semantic authority remains in the grounded frame | `pipeline.py` unresolved-frame gate; target-only prompt in `scripts/benchmark_tiny_realizer.py` | `test_neural_realizer_does_not_guess_unresolved_frame`; actual MARCO unknown-input integration case |
+| QA-001 Offline | Offline-first runtime; loopback-only benchmark sandbox | P1-E runner launches local Ollama with cloud disabled and no proxies | two sandboxed direct macOS reports in `benchmarks/p1-e/results/` |
+| QA-002 Determinism | Frozen workload, model digest, prompt hashes, pinned MARCO revision | `benchmarks/p1-e/workload.v1.json` and versioned run reports | `test_rule_baseline_matches_every_frozen_case`; repeated outputs identical within and across reports |
+| QA-009 Performance | Comparable rule and local candidate measurements without setting a product threshold | P1-E runner records cold/warm latency, sampled process-tree RSS, and model bytes | two 50-call reports; exact environment, runner, workload, and prompt identities in ADR-006 |

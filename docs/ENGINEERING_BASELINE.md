@@ -302,3 +302,34 @@ OOP applies because persistent mutable state, service boundaries, and interchang
 ## 10. Gap at baseline creation
 
 At baseline creation, P1-D remained the active gap. Its approved scope and final evidence are recorded in `work/current.md`.
+
+## 11. ADR-006 — P1-E tiny realizer benchmark decision
+
+Status: Benchmark complete; off-the-shelf candidate not selected. Product runtime remains undecided.
+
+Context and evidence:
+- The frozen workload contains five grounded gaming frames and one unknown-input invocation case. Workload SHA-256 is `4014f59dd1b31bd61a4b4b71ce51252cd5160213f1df5b8b733a71cef088f24e`; the frames were re-derived from actual MARCO `ffedc8b8552505e515b8f5ea2ae7f9934d7ef58e` and the versioned `.mco`.
+- The same target-only prompts and Qwen3-0.6B Q4_K_M candidate ran twice on macOS 26.6.2 / Apple M5 / 32 GiB. Both runs produced identical outputs for all five cases and every repetition.
+- Candidate semantic hard checks passed 0/5 cases after the oracle explicitly rejected slot-present relation reversals and unsupported claims; exact terminology passed 4/5. Rule baseline semantic checks passed 5/5; terminology also passed 4/5 because `FEED_ENEMY` targets `킬 헌납` while its grounded slot and expected output use `죽어주면`.
+- Candidate warm API latency medians were 93.58–95.69 ms (p90 144.33–146.18 ms, observed max 151.87–184.58 ms). Cold first-call wall time was 712.2–715.7 ms, including 577.4–578.3 ms model load. Sampled Ollama process-tree RSS peak was 953.2–955.2 MiB. Model artifact size was 522,653,767 bytes; Ollama reported 751.63M parameters and Q4_K_M. Rule-boundary medians were 0.000333–0.000375 ms (p90 0.000416–0.000500 ms).
+- The production pipeline made 0 neural-realizer calls across five grounded cases; the unknown case remained unresolved. Current seed has 10 entries and no dedicated training corpus is present.
+- The two raw reports are `benchmarks/p1-e/results/run-1.json` (SHA-256 `71be925e7fa75e967733dae5498e92fe1a6ca0f6f8ecc189c0f55769bdbb0ba5`) and `benchmarks/p1-e/results/run-2.json` (SHA-256 `38800321ba29ef61a451f628d0d767ab355f6b087d1a35191be72eade08edfdd`). Runner SHA-256: `8a901525441334a3aebfa905598977c154bc2e534d722186c2b56946900133a7`.
+
+Alternatives considered:
+| Option | Result | Reason |
+|---|---|---|
+| Select Qwen3-0.6B Q4_K_M for product realization | Rejected | It violates semantic hard constraints on all five grounded cases and adds latency and RAM while the rule path already resolves the workload. |
+| Train/distill a 100–300M model now | Not justified | Five benchmark frames, 10 seed entries, zero current neural invocations, and no training corpus do not support a training-quality claim. |
+| Keep the deterministic path and retain the neural boundary without selecting a model/runtime | Accepted | It preserves semantic authority and leaves later runtime decisions evidence-driven. |
+
+Decision:
+- Do not select this candidate for product use. Keep neural realization subordinate to a grounded frame and the rule-first pipeline.
+- Do not start 100–300M training or fine-tuning in P1-E. Revisit only when a representative, licensed training/evaluation corpus and a grounded neural-fallback workload exist.
+- Do not choose a product runtime, quantization policy, shared-core language, or P1-F architecture from this benchmark. No latency/RAM product threshold is set here.
+- Preserve the final frame's exact term/slot conflict in the benchmark record; do not silently rewrite the knowledge contract to improve a score.
+
+Candidate asset provenance: `qwen3:0.6b-q4_K_M`, Ollama 0.34.0, manifest digest `sha256:7df6b6e09427a769808717c0a93cadc4ae99ed4eb8bf5ca557c90846becea435`, Apache-2.0. Public references checked 2026-09-25: https://huggingface.co/Qwen/Qwen3-0.6B/tree/main and https://ollama.com/library/qwen3/tags.
+
+Consequences:
+- P1-E is complete with the candidate held. Existing rule-only outputs remain the selected realization behavior for this workload.
+- A future candidate evaluation must preserve the frozen SemanticFrame authority and report semantic, terminology, fluency, resource, and invocation evidence independently.

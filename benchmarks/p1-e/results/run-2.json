@@ -1,0 +1,2427 @@
+{
+  "schema_version": "p1-e-tiny-realizer-benchmark-report-v1",
+  "started_utc": "2026-09-25T02:39:24.678777+00:00",
+  "ended_utc": "2026-09-25T02:39:31.604779+00:00",
+  "workload": {
+    "path": "benchmarks/p1-e/workload.v1.json",
+    "sha256": "4014f59dd1b31bd61a4b4b71ce51252cd5160213f1df5b8b733a71cef088f24e",
+    "schema_version": "p1-e-semantic-frame-workload-v1",
+    "source_identity": {
+      "translator_commit": "174b05f4e3a132e682068fbfeafcb0d56520be67",
+      "marco_repository": "https://github.com/DoTaeIn/Marco",
+      "marco_revision": "ffedc8b8552505e515b8f5ea2ae7f9934d7ef58e",
+      "mco_sha256": "3f38aa5f1237170dbb5cf5a9cdbe19ab3d309c973b2d581bdc6f28463adeb627",
+      "frame_map_sha256": "573cf813df6d513a0536fba9819ae86284619ad24f1b4632d8887483c86699fa",
+      "seed_sha256": "3e21404f1cbbafeaba3fa515fbd51e8d2ca2fe272e221a14733a66140b5fff8a"
+    },
+    "frame_count": 5,
+    "case_ids": [
+      "west_sniper_warning",
+      "base_enemy_warning",
+      "church_materials_request",
+      "group_push_request",
+      "stop_feeding_complaint"
+    ],
+    "frame_identity_verified_against_actual_marco": true
+  },
+  "candidate": {
+    "runtime": "Ollama",
+    "runtime_version": "0.34.0",
+    "model": "qwen3:0.6b-q4_K_M",
+    "model_digest": "sha256:7df6b6e09427a769808717c0a93cadc4ae99ed4eb8bf5ca557c90846becea435",
+    "artifact_size_bytes": 522653767,
+    "parameter_size": "751.63M",
+    "quantization": "Q4_K_M",
+    "cache_directory": "/private/tmp/marco-translator-p1e-ollama-models-20260925"
+  },
+  "benchmark_runner": {
+    "path": "scripts/benchmark_tiny_realizer.py",
+    "sha256": "8a901525441334a3aebfa905598977c154bc2e534d722186c2b56946900133a7",
+    "python_version": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]"
+  },
+  "host": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit",
+    "machine": "arm64",
+    "processor": "Apple M5",
+    "physical_memory_bytes": 34359738368,
+    "power_state": "Now drawing from 'AC Power'\n -InternalBattery-0 (id=7340131)\t100%; charged; 0:00 remaining present: true",
+    "thermal_state": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded"
+  },
+  "network": {
+    "sandbox": "macOS sandbox-exec; inbound and outbound allowed only on localhost addresses",
+    "ollama_cloud_disabled": true,
+    "http_proxy_disabled": true,
+    "model_download_attempted": false
+  },
+  "prompt": {
+    "policy": "target language, domain, intent, style, target terminology, and semantic slots only",
+    "source_text_or_source_term_fields_included": false,
+    "sha256_by_case": {
+      "west_sniper_warning": "a484cb918e2850b3634a84eac6d1b50a7dc5ccac3f618d4f792bde78bee5b7f5",
+      "base_enemy_warning": "81b67abff6a3f2422362a59836450ebd14eafc766e711affa118132156cb4a2c",
+      "church_materials_request": "b2e68d05955c4aafa6b493a6f2bca6859a60a012c6c4f44c920b1ad262d21fcd",
+      "group_push_request": "93287dfe5195808634b3ab88ab7e2e435fab07e085d12e037d85ed00a9b36bb5",
+      "stop_feeding_complaint": "7c7a2c9c2c003a117653643ec00c4d3e588d7d8eab7e7e0572dbbf0a7705eed4"
+    }
+  },
+  "settings": {
+    "think": false,
+    "keep_alive": "10m",
+    "options": {
+      "temperature": 0,
+      "seed": 20260925,
+      "top_k": 1,
+      "num_ctx": 2048,
+      "num_predict": 64
+    },
+    "warmup_rounds": 2
+  },
+  "rule_baseline": {
+    "measurement_boundary": "RuleRealizer.realize on the same in-memory verified SemanticFrames; excludes resolver and persistence",
+    "first_realization_ms": 0.009917,
+    "measurements": [
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000459,
+        "repetition": 1,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000625,
+        "repetition": 1,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000625,
+        "repetition": 1,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.0005,
+        "repetition": 1,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.000625,
+        "repetition": 1,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000542,
+        "repetition": 2,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000417,
+        "repetition": 2,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000375,
+        "repetition": 2,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000375,
+        "repetition": 2,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.000459,
+        "repetition": 2,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000458,
+        "repetition": 3,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 3,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000417,
+        "repetition": 3,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000375,
+        "repetition": 3,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.000417,
+        "repetition": 3,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000416,
+        "repetition": 4,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 4,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000375,
+        "repetition": 4,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000333,
+        "repetition": 4,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.000375,
+        "repetition": 4,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000417,
+        "repetition": 5,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 5,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000416,
+        "repetition": 5,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000333,
+        "repetition": 5,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.000375,
+        "repetition": 5,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 6,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000333,
+        "repetition": 6,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000375,
+        "repetition": 6,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000333,
+        "repetition": 6,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.0005,
+        "repetition": 6,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 7,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000333,
+        "repetition": 7,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000375,
+        "repetition": 7,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000333,
+        "repetition": 7,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.0005,
+        "repetition": 7,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000416,
+        "repetition": 8,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 8,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000375,
+        "repetition": 8,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000333,
+        "repetition": 8,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.000375,
+        "repetition": 8,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 9,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 9,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000333,
+        "repetition": 9,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000333,
+        "repetition": 9,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.000375,
+        "repetition": 9,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "서쪽에 저격수 있음",
+        "wall_time_ms": 0.000416,
+        "repetition": 10,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진에 적 있음",
+        "wall_time_ms": 0.000375,
+        "repetition": 10,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "교회에 건축 자재가 필요함",
+        "wall_time_ms": 0.000416,
+        "repetition": 10,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "뭉쳐서 한 번에 밀자",
+        "wall_time_ms": 0.000333,
+        "repetition": 10,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        }
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "한 명씩 가서 죽어주면 답이 없어",
+        "wall_time_ms": 0.000375,
+        "repetition": 10,
+        "checks": {
+          "semantic": {
+            "pass": true,
+            "missing_slots": [],
+            "forbidden_fragments_found": []
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        }
+      }
+    ],
+    "summary": {
+      "count": 50,
+      "wall_time_ms": {
+        "min": 0.000333,
+        "median": 0.000375,
+        "p90": 0.0005,
+        "max": 0.000625
+      }
+    },
+    "repetition_stable_by_case": {
+      "west_sniper_warning": true,
+      "base_enemy_warning": true,
+      "church_materials_request": true,
+      "group_push_request": true,
+      "stop_feeding_complaint": true
+    }
+  },
+  "cold": {
+    "case_id": "west_sniper_warning",
+    "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+    "wall_time_ms": 712.180417,
+    "api_total_ms": 711.105083,
+    "model_load_ms": 578.269542,
+    "prompt_eval_ms": 27.716,
+    "generation_ms": 102.791,
+    "prompt_tokens": 89,
+    "generated_tokens": 20,
+    "done_reason": "stop",
+    "checks": {
+      "semantic": {
+        "pass": false,
+        "missing_slots": [],
+        "forbidden_fragments_found": [
+          "게임을 진행할 수 있는 공간"
+        ]
+      },
+      "terminology": {
+        "pass": true,
+        "missing_terms": []
+      }
+    },
+    "state": "cold_after_explicit_unload"
+  },
+  "warm": {
+    "measurements": [
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 103.605125,
+        "api_total_ms": 102.551875,
+        "model_load_ms": 0.4525,
+        "prompt_eval_ms": 4.654,
+        "generation_ms": 95.615,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 1
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 58.547917,
+        "api_total_ms": 57.646625,
+        "model_load_ms": 0.428708,
+        "prompt_eval_ms": 4.749,
+        "generation_ms": 51.014,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 1
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 96.223667,
+        "api_total_ms": 95.365458,
+        "model_load_ms": 0.406375,
+        "prompt_eval_ms": 6.262,
+        "generation_ms": 87.248,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 1
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 78.501458,
+        "api_total_ms": 77.433791,
+        "model_load_ms": 0.413291,
+        "prompt_eval_ms": 5.876,
+        "generation_ms": 69.472,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 1
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 142.538709,
+        "api_total_ms": 141.697792,
+        "model_load_ms": 0.373125,
+        "prompt_eval_ms": 4.812,
+        "generation_ms": 134.929,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 1
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 106.801625,
+        "api_total_ms": 105.638167,
+        "model_load_ms": 0.469,
+        "prompt_eval_ms": 4.696,
+        "generation_ms": 98.613,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 2
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 60.199833,
+        "api_total_ms": 59.236,
+        "model_load_ms": 0.390334,
+        "prompt_eval_ms": 5.032,
+        "generation_ms": 52.247,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 2
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 100.248875,
+        "api_total_ms": 99.324208,
+        "model_load_ms": 0.413791,
+        "prompt_eval_ms": 5.03,
+        "generation_ms": 91.988,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 2
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 84.32625,
+        "api_total_ms": 83.107167,
+        "model_load_ms": 0.508292,
+        "prompt_eval_ms": 5.232,
+        "generation_ms": 75.519,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 2
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 149.943,
+        "api_total_ms": 148.976542,
+        "model_load_ms": 0.482833,
+        "prompt_eval_ms": 5.513,
+        "generation_ms": 141.11,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 2
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 105.350084,
+        "api_total_ms": 104.151833,
+        "model_load_ms": 0.456042,
+        "prompt_eval_ms": 4.998,
+        "generation_ms": 96.986,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 3
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 57.594625,
+        "api_total_ms": 56.791167,
+        "model_load_ms": 0.404709,
+        "prompt_eval_ms": 4.829,
+        "generation_ms": 50.149,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 3
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 95.131875,
+        "api_total_ms": 94.289167,
+        "model_load_ms": 0.425167,
+        "prompt_eval_ms": 5.761,
+        "generation_ms": 86.532,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 3
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 78.071,
+        "api_total_ms": 77.21275,
+        "model_load_ms": 0.401916,
+        "prompt_eval_ms": 4.859,
+        "generation_ms": 70.403,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 3
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 141.322208,
+        "api_total_ms": 140.392,
+        "model_load_ms": 0.537833,
+        "prompt_eval_ms": 4.702,
+        "generation_ms": 133.414999,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 3
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 103.146625,
+        "api_total_ms": 102.161958,
+        "model_load_ms": 0.398375,
+        "prompt_eval_ms": 5.837,
+        "generation_ms": 94.42,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 4
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 59.309833,
+        "api_total_ms": 58.531541,
+        "model_load_ms": 0.360375,
+        "prompt_eval_ms": 6.156,
+        "generation_ms": 50.495,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 4
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 93.112583,
+        "api_total_ms": 92.251208,
+        "model_load_ms": 0.39125,
+        "prompt_eval_ms": 4.889,
+        "generation_ms": 85.41,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 4
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 81.513667,
+        "api_total_ms": 80.581959,
+        "model_load_ms": 0.478375,
+        "prompt_eval_ms": 4.67,
+        "generation_ms": 70.754,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 4
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 141.692584,
+        "api_total_ms": 140.785792,
+        "model_load_ms": 0.365209,
+        "prompt_eval_ms": 5.918,
+        "generation_ms": 132.895,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 4
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 102.421042,
+        "api_total_ms": 101.572541,
+        "model_load_ms": 0.35175,
+        "prompt_eval_ms": 4.791,
+        "generation_ms": 94.825,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 5
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 59.858333,
+        "api_total_ms": 59.057709,
+        "model_load_ms": 0.402292,
+        "prompt_eval_ms": 4.976,
+        "generation_ms": 52.243,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 5
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 97.47975,
+        "api_total_ms": 96.557875,
+        "model_load_ms": 0.400667,
+        "prompt_eval_ms": 4.871,
+        "generation_ms": 89.179,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 5
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 81.160875,
+        "api_total_ms": 80.134167,
+        "model_load_ms": 0.443583,
+        "prompt_eval_ms": 4.975,
+        "generation_ms": 73.119,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 5
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 151.865375,
+        "api_total_ms": 150.901417,
+        "model_load_ms": 0.432667,
+        "prompt_eval_ms": 4.706,
+        "generation_ms": 143.559,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 5
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 108.213666,
+        "api_total_ms": 107.125125,
+        "model_load_ms": 0.472083,
+        "prompt_eval_ms": 4.844,
+        "generation_ms": 99.854,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 6
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 62.332875,
+        "api_total_ms": 61.413917,
+        "model_load_ms": 0.421,
+        "prompt_eval_ms": 5.018,
+        "generation_ms": 54.108,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 6
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 95.86375,
+        "api_total_ms": 94.885417,
+        "model_load_ms": 0.479292,
+        "prompt_eval_ms": 4.636,
+        "generation_ms": 87.861,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 6
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 81.0265,
+        "api_total_ms": 80.039167,
+        "model_load_ms": 0.452792,
+        "prompt_eval_ms": 6.165,
+        "generation_ms": 71.783,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 6
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 143.570833,
+        "api_total_ms": 142.64725,
+        "model_load_ms": 0.454458,
+        "prompt_eval_ms": 6.141,
+        "generation_ms": 134.243,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 6
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 103.331084,
+        "api_total_ms": 102.434584,
+        "model_load_ms": 0.428917,
+        "prompt_eval_ms": 4.794,
+        "generation_ms": 95.606,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 7
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 60.137917,
+        "api_total_ms": 59.198959,
+        "model_load_ms": 0.432292,
+        "prompt_eval_ms": 4.94,
+        "generation_ms": 52.25,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 7
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 94.542833,
+        "api_total_ms": 93.573958,
+        "model_load_ms": 0.488875,
+        "prompt_eval_ms": 4.605,
+        "generation_ms": 86.962,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 7
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 79.490875,
+        "api_total_ms": 78.667416,
+        "model_load_ms": 0.383416,
+        "prompt_eval_ms": 6.182,
+        "generation_ms": 70.513,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 7
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 144.330416,
+        "api_total_ms": 143.249,
+        "model_load_ms": 0.407333,
+        "prompt_eval_ms": 5.886,
+        "generation_ms": 135.045,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 7
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 102.227542,
+        "api_total_ms": 101.417292,
+        "model_load_ms": 0.348875,
+        "prompt_eval_ms": 4.767,
+        "generation_ms": 94.626,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 8
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 58.459834,
+        "api_total_ms": 57.642208,
+        "model_load_ms": 0.405125,
+        "prompt_eval_ms": 4.88,
+        "generation_ms": 50.769,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 8
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 95.51,
+        "api_total_ms": 94.558709,
+        "model_load_ms": 0.453542,
+        "prompt_eval_ms": 5.018,
+        "generation_ms": 87.242,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 8
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 81.685709,
+        "api_total_ms": 80.763834,
+        "model_load_ms": 0.4425,
+        "prompt_eval_ms": 5.954,
+        "generation_ms": 72.871,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 8
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 150.006166,
+        "api_total_ms": 148.970084,
+        "model_load_ms": 0.36725,
+        "prompt_eval_ms": 6.212,
+        "generation_ms": 140.69,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 8
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 111.047375,
+        "api_total_ms": 109.905916,
+        "model_load_ms": 0.408708,
+        "prompt_eval_ms": 5.897,
+        "generation_ms": 101.848,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 9
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 63.267666,
+        "api_total_ms": 62.372958,
+        "model_load_ms": 0.440125,
+        "prompt_eval_ms": 4.873,
+        "generation_ms": 55.396,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 9
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 101.068167,
+        "api_total_ms": 100.031125,
+        "model_load_ms": 0.44275,
+        "prompt_eval_ms": 5.514,
+        "generation_ms": 92.578,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 9
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 86.198541,
+        "api_total_ms": 85.26625,
+        "model_load_ms": 0.478292,
+        "prompt_eval_ms": 5.707,
+        "generation_ms": 76.83,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 9
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 146.198541,
+        "api_total_ms": 145.029833,
+        "model_load_ms": 0.4075,
+        "prompt_eval_ms": 4.864,
+        "generation_ms": 138.119,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 9
+      },
+      {
+        "case_id": "west_sniper_warning",
+        "response": "저격수 서쪽에 위치하며, 게임을 진행할 수 있는 공간입니다.",
+        "wall_time_ms": 103.303459,
+        "api_total_ms": 102.256417,
+        "model_load_ms": 0.487083,
+        "prompt_eval_ms": 5.162,
+        "generation_ms": 95.036,
+        "prompt_tokens": 89,
+        "generated_tokens": 20,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "게임을 진행할 수 있는 공간"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 10
+      },
+      {
+        "case_id": "base_enemy_warning",
+        "response": "본진이 적을 방어하고 있다.",
+        "wall_time_ms": 58.790792,
+        "api_total_ms": 57.802417,
+        "model_load_ms": 0.426458,
+        "prompt_eval_ms": 4.777,
+        "generation_ms": 51.061,
+        "prompt_tokens": 86,
+        "generated_tokens": 11,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "본진이 적을 방어"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 10
+      },
+      {
+        "case_id": "church_materials_request",
+        "response": "\"건축 자재를 활용한 교회 건축 작업을 진행 중입니다.\"",
+        "wall_time_ms": 95.227875,
+        "api_total_ms": 94.32425,
+        "model_load_ms": 0.428458,
+        "prompt_eval_ms": 5.84,
+        "generation_ms": 86.512,
+        "prompt_tokens": 88,
+        "generated_tokens": 18,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [],
+            "forbidden_fragments_found": [
+              "건축 작업을 진행 중"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 10
+      },
+      {
+        "case_id": "group_push_request",
+        "response": "\"망치던 게임을 한 번에 밀자\"",
+        "wall_time_ms": 80.50625,
+        "api_total_ms": 79.317666,
+        "model_load_ms": 0.422666,
+        "prompt_eval_ms": 4.871,
+        "generation_ms": 72.473,
+        "prompt_tokens": 90,
+        "generated_tokens": 15,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "뭉쳐서"
+            ],
+            "forbidden_fragments_found": [
+              "망치던 게임"
+            ]
+          },
+          "terminology": {
+            "pass": true,
+            "missing_terms": []
+          }
+        },
+        "repetition": 10
+      },
+      {
+        "case_id": "stop_feeding_complaint",
+        "response": "코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.",
+        "wall_time_ms": 144.55,
+        "api_total_ms": 143.450792,
+        "model_load_ms": 0.455417,
+        "prompt_eval_ms": 4.799,
+        "generation_ms": 136.252,
+        "prompt_tokens": 106,
+        "generated_tokens": 28,
+        "done_reason": "stop",
+        "checks": {
+          "semantic": {
+            "pass": false,
+            "missing_slots": [
+              "죽어주면",
+              "답이 없어"
+            ],
+            "forbidden_fragments_found": [
+              "코스닥",
+              "쇼트"
+            ]
+          },
+          "terminology": {
+            "pass": false,
+            "missing_terms": [
+              "킬 헌납"
+            ]
+          }
+        },
+        "repetition": 10
+      }
+    ],
+    "summary": {
+      "count": 50,
+      "wall_time_ms": {
+        "min": 57.594625,
+        "median": 95.686875,
+        "p90": 144.330416,
+        "max": 151.865375
+      },
+      "api_total_ms_median": 94.72206299999999,
+      "model_load_ms_median": 0.427458,
+      "prompt_eval_ms_median": 4.9755,
+      "generation_ms_median": 87.245
+    },
+    "repetition_stable_by_case": {
+      "west_sniper_warning": true,
+      "base_enemy_warning": true,
+      "church_materials_request": true,
+      "group_push_request": true,
+      "stop_feeding_complaint": true
+    }
+  },
+  "memory": {
+    "method": "libproc resident_size samples every 100 ms for Ollama server and descendants",
+    "sample_count": 63,
+    "peak_process_tree_rss_bytes": 999473152,
+    "peak_process_count": 2,
+    "peak_process_rss_bytes": [
+      51822592,
+      947650560
+    ]
+  },
+  "pipeline_invocation_rate": {
+    "grounded_cases": 5,
+    "all_cases_including_unknown": 6,
+    "neural_calls": 0,
+    "grounded_invocation_rate": 0.0,
+    "all_case_invocation_rate": 0.0,
+    "result_paths": {
+      "west_sniper_warning": "rule",
+      "base_enemy_warning": "rule",
+      "church_materials_request": "rule",
+      "group_push_request": "rule",
+      "stop_feeding_complaint": "rule",
+      "unknown_input": "unresolved"
+    }
+  },
+  "repetitions": 10
+}

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from marco_translator.knowledge import KnowledgeStore
-from marco_translator.models import TranslationRequest
+from marco_translator.models import SemanticFrame, TranslationRequest
 from marco_translator.pipeline import Translator
 from marco_translator.resolver import DeterministicResolver
 from marco_translator.tm import SQLiteTranslationMemory
@@ -10,9 +10,13 @@ from marco_translator.tm import SQLiteTranslationMemory
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def make_translator():
+def make_translator(*, neural_realizer=None):
     knowledge = KnowledgeStore.from_json(ROOT / "knowledge" / "seed.zh-ko.json")
-    return Translator(resolver=DeterministicResolver(knowledge), tm=SQLiteTranslationMemory())
+    return Translator(
+        resolver=DeterministicResolver(knowledge),
+        tm=SQLiteTranslationMemory(),
+        neural_realizer=neural_realizer,
+    )
 
 
 def test_known_game_call_is_deterministic():
@@ -41,3 +45,47 @@ def test_unknown_does_not_guess():
     result = make_translator().translate(TranslationRequest("完全未知的新句子", domain="gaming"))
     assert result.path == "unresolved"
     assert result.translated_text == ""
+
+
+def test_neural_realizer_does_not_guess_unresolved_frame():
+    class Guess:
+        called = False
+
+        def realize(self, frame):
+            self.called = True
+            return "추측 번역"
+
+    neural = Guess()
+    result = make_translator(neural_realizer=neural).translate(
+        TranslationRequest("完全未知的新句子", domain="gaming")
+    )
+
+    assert result.path == "unresolved"
+    assert result.translated_text == ""
+    assert result.frame.unresolved
+    assert not neural.called
+
+
+def test_grounded_rule_miss_still_reaches_neural_realizer():
+    class Resolver:
+        def resolve(self, request):
+            return SemanticFrame(
+                request.source_language,
+                request.target_language,
+                request.text,
+                domain=request.domain,
+                intent="statement",
+                slots={"entity": "적"},
+                unresolved=[],
+                confidence=0.8,
+            )
+
+    class Neural:
+        def realize(self, frame):
+            return "적이 보임"
+
+    translator = Translator(resolver=Resolver(), neural_realizer=Neural())
+    result = translator.translate(TranslationRequest("敌人", domain="gaming"))
+
+    assert result.path == "neural-realizer"
+    assert result.translated_text == "적이 보임"
