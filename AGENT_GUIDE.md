@@ -117,11 +117,11 @@ runtime logs
 
 ## 현재 단계
 
-P1-A부터 P1-E까지 구현·검증 기준이 완료됐다. P1-E 후보 결정과 남은 품질 한계는 `docs/ENGINEERING_BASELINE.md` ADR-006과 `work/current.md`에 기록한다.
+P1-A부터 P1-E까지 구현·검증 기준이 완료됐다. P1-E 후보 결정과 남은 품질 한계는 `docs/ENGINEERING_BASELINE.md` ADR-006과 `work/p1-e-tiny-realizer-benchmark.md`에 보존한다.
 
-현재 활성 작업은 `work/current.md`만으로 판단한다. P1-F는 다음 계획 단계지만, 명시적으로 활성 scope가 되기 전에는 시작하지 않는다.
+현재 활성 작업은 `work/current.md`만으로 판단한다. 현재 단계는 P1-F Cross-platform Runtime Gate다.
 
-P1의 다음 계획 단계:
+P1의 현재 단계:
 - P1-F: Cross-platform Runtime Gate
 
 P1-F는 과거의 "mobile feasibility"가 아니라 macOS / Windows / Android / iOS 공통 runtime contract와 porting feasibility를 검증하는 단계다.

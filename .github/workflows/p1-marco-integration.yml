@@ -8,6 +8,7 @@ on:
       - p1/user-overlay
       - p1/engineering-baseline-macos
       - p1/tiny-realizer-benchmark
+      - p1/cross-platform-runtime-gate
   pull_request:
   workflow_dispatch:
 

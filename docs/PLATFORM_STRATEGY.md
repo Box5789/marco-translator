@@ -71,15 +71,24 @@ GitHub Actions/CLI 성공은 실제 macOS host interaction이 필요한 항목�
 
 ## Cross-platform Runtime Gate (P1-F)
 
-P1-F의 목적은 "모바일만 가능한가"가 아니다.
+P1-F의 목적은 "모바일만 가능한가"가 아니다. **Python reference의 의미 계약을 product runtime으로 옮길 수 있는지 네 플랫폼에서 직접 검증하는 gate**다.
 
-다음을 검증한다.
+검증 순서:
 
-1. shared contract가 Python implementation detail에 종속되지 않는가.
-2. persistent data를 네 플랫폼에서 같은 의미로 읽고 쓸 수 있는가.
-3. semantic engine, persistence, model runtime을 stable boundary 뒤에서 교체할 수 있는가.
-4. macOS reference fixture를 Windows/Android/iOS에서도 재생할 수 있는가.
-5. 각 플랫폼의 resource/permission 차이를 core semantic contract 밖으로 격리할 수 있는가.
+1. Python-only coupling과 public/persistent contract를 inventory한다.
+2. request/result/frame/term/error와 필요한 persistence semantics를 portable schema/fixture로 freeze한다.
+3. Rust shared core, C/C++ shared core, platform-native implementations, Python reference + independent product runtime 등 현재 근거가 있는 후보를 capability probe와 source evidence로 비교한다.
+4. 명확한 근거가 있을 때만 ADR로 product runtime 전략을 선택한다. 동률의 material trade-off가 남으면 구현 전에 사용자 정렬을 요청한다.
+5. 선택된 전략으로 **최소 vertical slice**를 구현한다. 목표는 full product port가 아니라 contract feasibility 증명이다.
+6. 최소 slice는 serialization, normalization, deterministic rule realization, unresolved safety gate, resolver/realizer 교체 seam, runtime persistence/interchange parity를 검증한다.
+7. macOS에서 직접 실행하고, Windows/Android/iOS에서 같은 contract/fixture identity를 사용해 build/link/runtime smoke를 수행한다.
+8. target별 결과를 direct execution / simulator-emulator / compile-link only로 분리한다. compile 성공을 runtime 성공으로 보고하지 않는다.
+9. offline behavior와 Python-runtime independence를 확인한다.
+10. P1-A~P1-E Python reference regression을 유지한다.
+
+P1-F는 MARCO 전체 native 재작성, OCR, screen capture, overlay UI, store 배포를 요구하지 않는다. 다만 semantic engine이 stable boundary 뒤에서 교체 가능하다는 직접 fixture evidence는 필요하다.
+
+P1-F를 Complete로 선언하려면 macOS direct run, Windows native run, Android emulator/runtime smoke, iOS simulator/runtime smoke가 모두 요구된다. 환경 제약으로 하나라도 실행하지 못하면 그 항목은 blocked로 남기고 compile-only evidence로 대체하지 않는다.
 
 ## 향후 Architecture ADR의 평가 후보
 

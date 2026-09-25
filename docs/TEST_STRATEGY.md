@@ -156,3 +156,30 @@ Fluency rubric (1–5): 1 unusable; 2 serious phrasing issues; 3 understandable 
 | stop feeding | `한 명씩 가서 죽어주면 답이 없어` (4) | `코스닥 쇼트를 했을 때, 한 명씩 가서 헌납할 수 없다.` (1) |
 
 Mean fluency: rule 4.6/5; candidate 2.6/5. Candidate outputs were stable within and across runs, but it failed semantic hard constraints on all five cases and was not selected. Fine-tuning/distillation at 100–300M was not justified: the repository has no dedicated training corpus, only five evaluated frames, ten seed entries, and no current neural invocation.
+
+
+## P1-F cross-platform runtime validation
+
+P1-F는 Python reference와 선택된 product-runtime 전략이 동일한 portable contract를 유지하는지 검증한다.
+
+Required evidence:
+
+- versioned portable schemas/fixtures for request, result, semantic frame, term/provenance and boundary errors
+- fixture hash/version identity shared by every target report
+- Python reference conformance report
+- selected non-Python/product-runtime vertical-slice conformance report
+- semantic resolver replacement seam using a fixture/deterministic resolver
+- neural realizer replacement seam without giving semantic authority
+- unresolved input remains unresolved and never enters an unconstrained neural path
+- persistence/interchange parity for in-scope runtime state
+- FFI/boundary malformed-input and error-path tests
+- macOS direct native run
+- Windows native CI/run
+- Android emulator/runtime smoke
+- iOS simulator/runtime smoke
+- target build/link evidence kept separate from target runtime evidence
+- offline runtime smoke with no cloud dependency
+- binary/startup/latency/memory measurements where the target environment exposes reliable measurements; do not invent product thresholds
+- P1-A–P1-E full Python regression and actual MARCO integration remain green
+
+Architecture selection itself requires a recorded comparison and capability evidence. A compile-only target cannot satisfy a runtime acceptance criterion. A blocked emulator/simulator/runtime check leaves P1-F incomplete rather than silently narrowing the gate.

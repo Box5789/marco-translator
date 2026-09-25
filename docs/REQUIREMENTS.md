@@ -24,13 +24,15 @@
 - Tiny Neural Realizer 경계
 - cross-platform public contract
 
-### Out of scope for current P1-D
-- Tiny Realizer 모델 선정/학습
-- native cross-platform core 구현
+### Out of scope for current P1-F
+- full production UI/app implementation
 - OCR
 - screen capture
 - visual overlay UI
+- full native MARCO reimplementation unless direct gate evidence proves it is required
+- Tiny Realizer model selection/training beyond the completed P1-E evidence
 - cloud translation runtime
+- release/signing/store submission
 
 ## Functional Requirements
 
@@ -54,6 +56,13 @@
 | FR-016 | 제품 contract는 macOS, Windows, Android, iOS 구현이 공유할 수 있게 플랫폼 UI/API와 분리되어야 한다. | H | public data contract에 특정 UI toolkit 타입이나 Python object identity가 요구되지 않는다. | architecture review |
 | FR-017 | runtime 로그/지식은 사용자의 명시적 동작 없이 외부 서비스로 전송되지 않아야 한다. | H | runtime path와 maintenance export path에 automatic network upload가 없다. | code/security review |
 | FR-018 | canonical Knowledge Version은 seed, MARCO `.kg`, frame map, `.mco` 빌드에 영향을 주는 style/config 입력, build provenance와 실제 파생 `.mco` digest를 식별해야 한다. | H | 저장·export·재오픈 시 asset digest, compiler provenance, derived `.mco` hash가 일치한다. | version-store and package integrity tests |
+| FR-019 | runtime의 public data contract는 Python object identity 없이 직렬화·검증 가능해야 한다. | H | request/result/frame/term/error fixtures를 비-Python 구현이 같은 의미로 읽고 쓴다. | schema + conformance tests |
+| FR-020 | Python reference와 product runtime 후보는 같은 frozen conformance fixtures에 대해 동일한 deterministic 의미 결과를 내야 한다. | H | 필수 fixture parity 100%; unknown/unresolved safety parity 유지. | cross-runtime conformance suite |
+| FR-021 | product runtime 후보는 실행 시 Python interpreter 또는 MARCO 내부 Python module을 필수로 요구해서는 안 된다. | H | selected portable vertical slice가 Python 없이 macOS/Windows/Android/iOS target에서 build/link되며 required smoke path가 실행된다. | target build/runtime smoke |
+| FR-022 | semantic resolver와 neural realizer는 stable boundary 뒤에서 교체 가능해야 한다. | H | fixture resolver와 null/fixture realizer가 core orchestration을 변경하지 않고 대체된다. | component/contract tests |
+| FR-023 | runtime persistent semantics는 플랫폼 간 보존되어야 한다. | H | TM/User Overlay/Session 또는 승인된 interchange representation이 Python reference fixture와 round-trip 의미 parity를 가진다. | persistence interop tests |
+| FR-024 | platform-specific capture/OCR/UI/permission/lifecycle 코드는 semantic core에 직접 결합되지 않아야 한다. | H | platform smoke host가 thin adapter로 core를 호출하고 core contract에 host UI 타입이 없다. | architecture + host smoke review |
+| FR-025 | macOS/Windows/Android/iOS에서 동일한 core conformance version과 fixture identity를 검증할 수 있어야 한다. | H | 네 플랫폼 evidence가 동일 contract/fixture hash를 보고한다. | CI/direct target reports |
 
 ## Quality Attributes
 
@@ -69,6 +78,10 @@
 | QA-008 | Portability | 같은 translation contract를 다른 플랫폼에서 구현 | 플랫폼 adapter 없이 core schema를 해석 가능 | schema/fixture parity; 구체 성능 한계는 P1-F에서 측정 |
 | QA-009 | Performance | macOS에서 reference workload 실행 | P1-E/P1-F에서 동일 workload 기준 측정 | latency/RAM/model size 목표는 현재 Measurement Needed |
 | QA-010 | Compatibility | persistent schema/version 변화 | 기존 지원 version을 읽거나 명시적 migration/rejection | silent corruption 0 |
+| QA-011 | Runtime portability | 동일 frozen runtime contract를 네 target에서 build/run | 플랫폼별 adapter 차이와 무관하게 core fixture 의미 유지 | required conformance mismatch 0 |
+| QA-012 | FFI/API safety | host가 invalid payload/error를 전달 | crash/UB 대신 versioned error contract로 실패 | unhandled boundary crash 0 in conformance suite |
+| QA-013 | Runtime independence | product runtime process 시작 | Python/MARCO internal module 없이 portable slice 실행 | Python runtime dependency 0 for selected slice |
+| QA-014 | Resource observability | target smoke workload 실행 | binary/startup/latency/memory 또는 측정 가능한 subset 기록 | 임의 product threshold 없이 platform별 measured evidence 기록 |
 
 ## Constraints
 
@@ -79,8 +92,9 @@
 - 외부 LLM은 provider-independent maintenance proposal 역할만 한다.
 - cloud API는 runtime 필수 dependency가 될 수 없다.
 - Python 구현은 현재 reference implementation이다.
-- native core 언어는 아직 결정하지 않는다.
-- 새 dependency 설치는 capability probe 후 필요 시 사용자 승인 절차를 따른다.
+- native core 언어/구현 전략은 P1-F ADR의 evidence가 확보되기 전에는 결정하지 않는다.
+- P1-F에서는 architecture 후보를 실제 source/pattern/capability evidence로 비교한 뒤, 명확한 단일 결론이면 task 권한 안에서 ADR을 확정할 수 있다. 여러 후보가 기준을 충족하면서 장기 trade-off가 남으면 구현 전 사용자 정렬을 요청한다.
+- dependency/toolchain은 capability probe가 선행되며, work/current.md의 P1-F 사전 승인 경계를 따른다.
 
 ## Assumptions
 
