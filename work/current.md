@@ -68,16 +68,29 @@ P1-D의 전체 Engineering Record는 `work/p1-d-knowledge-maintenance.md`에 보
 13. 기존 P1-A~P1-D regression 유지
 14. benchmark 결과와 architecture implications를 Engineering/Decision Record에 반영
 
-### Conditional approval boundary
+### Pre-authorized benchmark environment boundary
 
-새 Python/system package 설치, persistent environment 생성, model/runtime asset 다운로드가 필요한 경우:
+사용자가 P1-E 범위에 한해 다음 작업을 사전 승인했다. 이 승인은 `AGENTS.md`의 설치 승인 요구를 아래 범위에서 충족한 것으로 기록한다.
 
-1. 먼저 현재 설치 상태와 import/command capability를 probe한다.
-2. 기존 설치만으로 진행할 수 없음을 증명한다.
-3. 필요한 package/model, 목적, 저장 위치, 대략적 크기/영향, fallback을 명시해 사용자 승인을 요청한다.
-4. 승인 전에는 설치·다운로드하지 않는다.
+자동 허용:
+- project-local `.venv` 또는 `/tmp`의 disposable isolated environment 생성
+- 해당 isolated environment 내부의 필요한 Python package 설치
+- 공개 benchmark model/runtime asset 다운로드
+- project-local 또는 명시된 benchmark cache/temp 경로 사용
+- benchmark가 요구하는 local-only model conversion/quantization artifact 생성
 
-이 approval 대기 중에도 독립적으로 가능한 corpus 설계, source inspection, benchmark harness, rule baseline, 문서 작업은 계속한다.
+자동 허용 작업도 먼저 capability probe를 수행하고, 이미 설치된 충분한 도구가 있으면 재사용한다. 설치/다운로드한 package·model의 이름, version/revision, license, source, 저장 위치, 실제 disk size를 Engineering Record에 남긴다. benchmark asset과 cache는 source artifact로 commit하지 않는다.
+
+별도 승인이 필요한 항목:
+- Homebrew 등 system package manager 변경
+- global Python, `--user`, `--break-system-packages` 설치
+- OS 설정, driver, system runtime 변경
+- 인증 token/login이 필요한 model 또는 private/restricted asset
+- 유료 API/서비스 사용
+- 기존 사용자 파일이나 persistent environment 덮어쓰기
+- 단일 다운로드가 4 GiB를 초과하거나, 예상 총 신규 다운로드가 8 GiB를 초과하는 작업
+
+별도 승인 대상에 도달해도 독립적으로 가능한 corpus 설계, source inspection, benchmark harness, rule baseline, 문서/분석 작업은 계속한다.
 
 ### Explicitly out of scope
 
@@ -99,7 +112,7 @@ P1-D의 전체 Engineering Record는 `work/p1-d-knowledge-maintenance.md`에 보
 |---|---|---|---|
 | AC-E1 | benchmark workload와 fixture identity가 고정되고 재현 가능하다 | versioned corpus/manifest + repeat run | Pending |
 | AC-E2 | rule-only baseline이 동일 workload로 측정된다 | benchmark report | Pending |
-| AC-E3 | 최소 1개 sub-1B local candidate가 실제 Mac에서 실행된다 | direct macOS inference record | Pending / may require approval |
+| AC-E3 | 최소 1개 sub-1B local candidate가 실제 Mac에서 실행된다 | direct macOS inference record | Pending |
 | AC-E4 | semantic preservation이 독립 metric/oracle로 측정된다 | hard-constraint evaluation | Pending |
 | AC-E5 | terminology compliance가 독립적으로 측정된다 | required-term assertions/report | Pending |
 | AC-E6 | fluency가 semantic correctness와 분리된 rubric으로 기록된다 | scored sample/report | Pending |
@@ -192,10 +205,10 @@ failed/skipped/timed-out result는 reproducible classification과 impact stateme
 ## Residual risks at task start
 
 - 현재 Mac의 실제 inference capability와 설치된 runtime은 아직 재-probe하지 않았다.
-- model 후보와 라이선스/배포 조건은 아직 검증되지 않았다.
+- model 후보와 라이선스/배포 조건은 아직 검증되지 않았다. 공개 benchmark asset 다운로드는 위 한도 내 사전 승인되었지만 license/source 기록은 필수다.
 - semantic-preservation 자동 oracle이 어느 범위까지 충분한지 아직 확정되지 않았다.
 - 100–300M 전용 모델을 학습할 만큼 corpus가 충분한지 아직 검증되지 않았다.
 
 ## Next step
 
-documentation preflight 후 현재 `NeuralRealizer` contract와 Mac capability를 조사한다. dependency/model asset이 이미 존재하지 않아 새 설치나 다운로드가 필요하면 그 시점에 사용자 승인을 요청하고, 그 전까지 독립적으로 가능한 benchmark harness와 rule baseline 작업을 계속한다.
+documentation preflight 후 현재 `NeuralRealizer` contract와 Mac capability를 조사한다. 필요한 project-local isolated package와 공개 benchmark model/runtime asset은 위 사전 승인 범위에서 설치·다운로드하고, 별도 승인 경계에 해당하는 작업만 사용자에게 질문한다.

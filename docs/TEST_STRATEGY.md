@@ -118,6 +118,6 @@ Required evidence:
 - local assets가 준비된 뒤 network-disabled inference
 - P1-A~P1-D 전체 regression 유지
 
-새 model/runtime dependency 설치나 model asset download가 필요하면 기존 capability를 먼저 probe하고, 프로젝트 규율에 따라 사용자 승인 없이 설치/다운로드를 진행하지 않는다.
+새 model/runtime dependency나 model asset이 필요하면 먼저 기존 capability를 probe한다. P1-E에서는 project-local 또는 temporary isolated environment의 package 설치와 공개 benchmark model/runtime asset 다운로드가 사전 승인되어 있다. system package manager/global Python/OS 설정 변경, 인증·비용이 필요한 asset, 기존 persistent 환경 덮어쓰기, 단일 4 GiB 초과 또는 총 신규 8 GiB 초과 다운로드는 별도 승인을 요구한다. 모든 외부 asset의 source/version/license/size를 기록한다.
 
 구체적인 product latency/RAM threshold는 실측 전 임의로 확정하지 않는다. benchmark 결과와 플랫폼 요구를 근거로 후속 ADR에서 결정한다.
