@@ -99,3 +99,25 @@ P1-E/P1-F에서 같은 Mac workload를 고정한 뒤 다음을 측정한다.
 - neural invocation rate
 
 현재 상태: **Measurement Needed**
+
+
+## P1-E benchmark validation
+
+P1-E는 macOS에서 Tiny Neural Realizer 후보를 **동일한 frozen workload**로 비교한다. 모델이나 runtime을 먼저 정하고 테스트를 맞추지 않는다.
+
+Required evidence:
+
+- benchmark corpus/version identity와 재현 가능한 input fixture
+- deterministic rule-only baseline
+- 최소 1개 sub-1B off-the-shelf local realizer 후보의 실제 macOS 실행
+- 100–300M distilled/fine-tuned 후보는 데이터·compute·품질 근거가 충분할 때만 수행
+- semantic preservation과 terminology compliance를 hard constraint로 별도 기록
+- fluency는 semantic correctness와 분리된 rubric으로 기록
+- 동일 workload에서 cold/warm latency, 반복 latency 분포, peak RAM, model-on-disk size
+- 실제 pipeline에서 neural invocation rate 또는 동일 기준의 재현 가능한 계산
+- local assets가 준비된 뒤 network-disabled inference
+- P1-A~P1-D 전체 regression 유지
+
+새 model/runtime dependency 설치나 model asset download가 필요하면 기존 capability를 먼저 probe하고, 프로젝트 규율에 따라 사용자 승인 없이 설치/다운로드를 진행하지 않는다.
+
+구체적인 product latency/RAM threshold는 실측 전 임의로 확정하지 않는다. benchmark 결과와 플랫폼 요구를 근거로 후속 ADR에서 결정한다.

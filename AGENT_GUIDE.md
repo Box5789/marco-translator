@@ -117,12 +117,11 @@ runtime logs
 
 ## 현재 단계
 
-P1-A, P1-B, P1-C는 구현 및 CI 기준 완료됐다.
+P1-A, P1-B, P1-C, P1-D는 구현 및 검증 기준 완료됐다.
 
-현재 활성 작업은 `work/current.md`가 정의한다.
+현재 활성 작업은 `work/current.md`가 정의한다. 현재 단계는 P1-E Tiny Realizer benchmark다.
 
 P1의 남은 큰 단계:
-- P1-D: Knowledge Maintenance
 - P1-E: Tiny Realizer benchmark
 - P1-F: Cross-platform Runtime Gate
 
