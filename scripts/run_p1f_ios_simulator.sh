@@ -21,7 +21,7 @@ xcodebuild \
 simulator_info="$(xcrun simctl list devices available -j | python3 -c '
 import json,sys
 devices=json.load(sys.stdin)["devices"]
-available=[d for runtime in devices for d in runtime if d.get("isAvailable") and d["name"].startswith("iPhone")]
+available=[device for runtime_devices in devices.values() for device in runtime_devices if device.get("isAvailable") and device["name"].startswith("iPhone")]
 if not available: raise SystemExit("No available iPhone simulator")
 booted=next((d for d in available if d.get("state")=="Booted"), None)
 device=booted or available[0]
