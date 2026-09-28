@@ -1,6 +1,6 @@
 # Current Task — P1-F Cross-platform Runtime Gate
 
-Status: Active — portable slice 구현 완료, 4-platform direct runtime gate 및 회귀 검증 진행 중
+Status: Complete — P1-F portable runtime gate와 요구 회귀 검증을 2026-09-28 완료
 Branch: `p1/cross-platform-runtime-gate`  
 Parent baseline: `p1/tiny-realizer-benchmark@b0a2e2eedff9a1e139e3ba76676472af1e93325e`
 
@@ -23,7 +23,7 @@ P1-F는 완성 앱을 만드는 단계가 아니라 **cross-platform product run
 - P1-C: Complete
 - P1-D: Complete
 - P1-E: Complete
-- P1-F: Active
+- P1-F: Complete
 
 ## Accepted decisions carried forward
 
@@ -194,21 +194,21 @@ compile/link 성공만으로 runtime 성공을 주장하지 않는다. Android/i
 
 | ID | Criterion | Direct evidence | Status |
 |---|---|---|---|
-| AC-F1 | Python-only coupling과 portable/public/persistent boundary가 완전하게 inventory된다 | reconciled scope table + source references | Pending |
-| AC-F2 | request/result/frame/term/error와 필요한 persistence semantics가 versioned portable contract/fixture로 고정된다 | schema/fixture hashes + Python reference conformance | Pending |
-| AC-F3 | architecture 후보가 실제 source/capability evidence로 비교되고 ADR이 결정된다 | decision record + probes | Pending |
-| AC-F4 | 선택된 product-runtime vertical slice가 실행 시 Python interpreter/MARCO internal Python module 없이 동작한다 | dependency/runtime inspection + smoke | Pending |
-| AC-F5 | resolver/realizer가 stable boundary 뒤에서 교체되고 unresolved safety가 유지된다 | fixture resolver/null realizer tests | Pending |
-| AC-F6 | in-scope runtime persistence/interchange가 Python reference와 의미 parity를 가진다 | cross-runtime round-trip/reopen test | Pending |
-| AC-F7 | macOS direct native conformance가 통과한다 | local Mac runtime report | Pending |
-| AC-F8 | Windows native runtime conformance가 통과한다 | Windows runner report | Pending |
-| AC-F9 | Android emulator/actual runtime smoke가 통과한다 | Android runtime report | Pending |
-| AC-F10 | iOS simulator/actual runtime smoke가 통과한다 | iOS runtime report | Pending |
-| AC-F11 | portable slice가 offline/cloud-independent하게 실행된다 | target/offline checks | Pending |
-| AC-F12 | target build/resource evidence가 실제 측정값으로 기록된다 | binary/startup/latency/memory 가능한 subset | Pending |
-| AC-F13 | P1-A~P1-E regression과 actual MARCO integration이 유지된다 | full Python suite + integration | Pending |
-| AC-F14 | OCR/capture/UI 등 platform host concern이 semantic core contract 밖에 유지된다 | architecture/host smoke review | Pending |
-| AC-F15 | P1-F 결론과 P2 시작 조건이 evidence로 정리된다 | final ADR + Engineering Record | Pending |
+| AC-F1 | Python-only coupling과 portable/public/persistent boundary가 완전하게 inventory된다 | reconciled scope table + source references | Validated |
+| AC-F2 | request/result/frame/term/error와 필요한 persistence semantics가 versioned portable contract/fixture로 고정된다 | schema/fixture hashes + Python reference conformance | Validated |
+| AC-F3 | architecture 후보가 실제 source/capability evidence로 비교되고 ADR이 결정된다 | decision record + probes | Validated |
+| AC-F4 | 선택된 product-runtime vertical slice가 실행 시 Python interpreter/MARCO internal Python module 없이 동작한다 | dependency/runtime inspection + smoke | Validated |
+| AC-F5 | resolver/realizer가 stable boundary 뒤에서 교체되고 unresolved safety가 유지된다 | fixture resolver/null realizer tests | Validated |
+| AC-F6 | in-scope runtime persistence/interchange가 Python reference와 의미 parity를 가진다 | cross-runtime round-trip/reopen test | Validated |
+| AC-F7 | macOS direct native conformance가 통과한다 | local Mac runtime report | Validated |
+| AC-F8 | Windows native runtime conformance가 통과한다 | Windows runner report | Validated |
+| AC-F9 | Android emulator/actual runtime smoke가 통과한다 | Android runtime report | Validated |
+| AC-F10 | iOS simulator/actual runtime smoke가 통과한다 | iOS runtime report | Validated |
+| AC-F11 | portable slice가 offline/cloud-independent하게 실행된다 | target/offline checks | Validated |
+| AC-F12 | target build/resource evidence가 실제 측정값으로 기록된다 | binary/startup/latency/memory 가능한 subset | Validated |
+| AC-F13 | P1-A~P1-E regression과 actual MARCO integration이 유지된다 | full Python suite + integration | Validated |
+| AC-F14 | OCR/capture/UI 등 platform host concern이 semantic core contract 밖에 유지된다 | architecture/host smoke review | Validated |
+| AC-F15 | P1-F 결론과 P2 시작 조건이 evidence로 정리된다 | final ADR + Engineering Record | Validated |
 
 ## Validation rules
 
@@ -274,9 +274,9 @@ P1-F에서 직접 evidence가 필요한 항목만 결정한다. P2/P1-E 범위�
 - MARCO 자체는 Python reference engine이므로 eventual native semantic engine은 P1-F에서 interface feasibility만 증명하고 full rewrite는 하지 않을 수 있다.
 - P1-E에서는 neural invocation rate가 0이었으므로 P1-F model-runtime backend는 선택 근거가 약하다.
 
-## Current next step
+## Completion and handoff
 
-정확한 Rust 1.98.1 host 검증과 최신 C ABI 경계 smoke를 마친다. 이후 CI에서 같은 fixture hash로 macOS, Windows, Android emulator, iOS simulator runtime을 검증하고 전체 Python/MARCO regression을 수행한다. 실패는 원인과 직접 증거를 기준으로 수정하며, gate 결과 전 P1-F를 닫지 않는다.
+P1-F는 AC-F1~AC-F15 검증, 네 target runtime smoke, Python reference/actual MARCO 회귀, 문서·ADR 갱신, 한국어 커밋 및 원격 반영을 마쳐 종료했다. 최종 증거와 남은 제한은 아래 Final closeout에 기록한다. P2 OCR/capture/overlay 구현은 시작하지 않았다. 새 P2 범위는 제품 요구·플랫폼 권한·개인정보 경계·성능 예산의 근거를 정한 뒤 별도 작업으로 승인되어야 한다.
 
 ## Engineering Record — P1-F recovery and evidence work (2026-09-28)
 
@@ -365,3 +365,46 @@ At this checkpoint AC-F1–AC-F15 were **Pending**. ADR-007 recorded the evidenc
 - Repository baseline/status, Graphify graph/interpreter, source inventories, macOS tool availability, and the host SQLite probe were checked read-only; no product test suite has run yet.
 - Local iOS simulator and Android runtime are unavailable in the present host environment. CI/simulator route is not yet proven; this blocks the corresponding criteria until direct target smoke succeeds.
 - The Python request has no byte/length ceiling; the new versioned FFI contract sets a 1 MiB input limit. Python source compatibility remains unlimited; the reference conformance path uses Python 3.14.7 / UCD 16.0.0.
+
+## Final closeout — P1-F (2026-09-28)
+
+### Delivered outcome
+
+- AC-F1~AC-F15를 모두 `Validated`로 닫았다. P1-F의 portable contract, Rust shared runtime slice, C ABI, SQLite v1 boundary, Python conformance 및 host adapters는 ADR-007과 traceability에 반영했다.
+- Architecture decision은 evidence 기반 Rust 1.98.1 shared runtime slice다. 이것은 semantic engine 전체나 최종 model/runtime backend 선택이 아니다. Resolver는 deterministic fixture, neural seam은 null 구현으로 두었고 Base KG/TM/User Overlay/Session State 경계를 보존했다.
+- Contract `marco-runtime.v1`의 7개 fixture가 모든 target report에서 SHA-256 `b099cfc595104ee80edbf5adc0b247587c9fcf1955a5f04e53a435e5748e845b`로 일치했다.
+- Python runtime 경로는 reference 유지, portable runtime은 Python·MARCO `mco`·모델·네트워크 실행 의존성 없이 동작했다. iOS/Android host는 lifecycle/FFI glue만 가진다.
+
+### Verification evidence
+
+| Check | Result | Evidence and limits |
+|---|---|---|
+| Rust host/unit/build | Pass | Rust 1.98.1; 8 tests passed; release build and `cargo fmt --all -- --check` passed. Local target capability checks covered iOS/Android/Windows compile targets; CI below supplies direct target execution. |
+| Python reference and actual MARCO | Pass | Local full suite with the actual pinned `.mco`, network denied: 66 passed. CI run `36381612145` checked out `DoTaeIn/Marco@ffedc8b8552505e515b8f5ea2ae7f9934d7ef58e`, built the pack, and completed `pytest -q tests` successfully. Linux skipped the macOS-only `libproc` RSS sampler; the local macOS suite ran it. |
+| macOS native runtime | Pass | Direct C host; same contract/hash and 7 fixtures; open 2,465 µs, smoke 45,613 µs; dylib 2,877,152 bytes. Rust↔Python SQLite interop passed on Python 3.14.7 / SQLite 3.50.4. CI applied `sandbox-exec` network denial; linked runtime dependency was `libSystem`. |
+| Windows native runtime | Pass | Native C host and 8 Rust tests; same contract/hash and 7 fixtures; open 4,000 µs, smoke 96,000 µs; DLL 2,513,920 bytes. Dependency inventory contains Windows system/runtime libraries only. |
+| Android emulator | Pass | Android API 35 emulator, Rust library build and C host execution; same contract/hash and 7 fixtures; open 2,637 µs, smoke 236,010 µs; shared library 3,242,560 bytes. Dynamic dependencies were `libdl`, `libm`, and `libc`. |
+| iOS simulator | Pass | iOS Simulator 26.4.1, SDK 26.5; direct Swift host reported fixture, FFI error, Overlay, Session, TM, and reopen checks; same contract/hash and 7 fixtures; startup 27.01 ms, runtime 12.13 ms; app 159,744 bytes and static runtime library 22,015,848 bytes. Linked dependencies were Apple system frameworks/libraries and Swift runtime. |
+| Offline/dependency boundary | Pass | All four runtime reports say `network_dependency=none`; macOS execution additionally ran inside a network-denied sandbox. Host dependency inventories were collected for macOS, Windows, Android, and iOS. Resource values are measurements, not product budgets; memory was not measured. |
+| Local boundary/tool checks | Pass | After the Android NDK macro fix, strict Clang C smoke compile and network-denied runtime smoke passed. `git diff --check`, workflow YAML parsing, plist/Xcode project lint, Swift parse, and Bash syntax checks passed. |
+
+CI evidence bundle is attached to [workflow run 36381612145](https://github.com/Box5789/marco-translator/actions/runs/36381612145). All five jobs succeeded: Python/reference+MARCO, macOS, Windows, Android emulator, and iOS simulator. Target measurements are baseline evidence only; startup/memory/binary-size product budgets remain undecided.
+
+### Failed-check classification and correction
+
+| Run | Observed failure | Classification and correction |
+|---|---|---|
+| `36380005430` | Android shell rejected `pipefail`; iOS Swift host used an unavailable `Data` API | Host/workflow integration defects. Android execution moved to a Bash helper; iOS file handling was changed to supported APIs. |
+| `36380358383` | Windows fixture hash differed under CRLF; Android cross compiler environment was lost in a subshell; iOS linker could not find the Rust library | Cross-platform build/integration defects. Fixture JSON/sidecar line endings were pinned to LF; Android compiler environment and build were kept in one helper shell; iOS library search path was added. |
+| `36380717936` | iOS simulator device list was parsed as an array although the SDK returns a dictionary; Android runner evaluated multiline shell script lines in separate shells | Runner/API-shape defects. iOS selection now iterates `devices.values`; Android workflow calls a checked-in Bash helper. |
+| `36381048661` | Android NDK's `linux/limits.h` redefined `MAX_INPUT`, which strict C warnings treated as an error | C host name collision. Renamed it to `P1F_MAX_INPUT_BYTES`; strict local compile passed and the final Android emulator CI job passed. The other four jobs had passed in that run. |
+
+The final successful implementation commits were `05e2e85`, `ae42197`, `52ca2fd`, `6eb7b4e`, and `3b5b5a5`, all pushed to `p1/cross-platform-runtime-gate`. The documentation closeout is committed and pushed separately after this evidence record.
+
+### Graphify, residual risk, and stop condition
+
+- Graphify `update .` ran after the last source change. It reported 7 source files with zero nodes and a partial parse warning for `runtime/include/marco_runtime.h` at line 36; its watch reported no topology change. Clang strict compile and native smoke are the direct C-header/runtime evidence. Pre-existing untracked `graphify-out/` was preserved and excluded from commits.
+- CI emitted informational Node.js 20 deprecation annotations for GitHub Actions currently forced onto Node.js 24; all affected jobs succeeded. Action version maintenance is separate from the runtime contract.
+- Local Mac did not have iOS/Android SDKs, so those platforms were directly executed in GitHub-hosted simulator/emulator CI. No local simulator/emulator claim is made.
+- P2 OCR, capture, overlay/UI, app packaging, full native MARCO semantic implementation, model backend, and final product resource targets were not started or selected. They require separate scope and evidence.
+- Stop condition is met: all applicable acceptance criteria have direct evidence; all four platform runtimes, offline/persistence/error checks, regression/integration, canonical docs, and remote branch delivery are complete. No follow-on phase was started.

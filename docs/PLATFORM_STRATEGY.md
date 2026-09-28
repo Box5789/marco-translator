@@ -2,7 +2,7 @@
 
 ## Decision status
 
-현재 상태: **Rust shared core selected for the P1-F minimum runtime slice; target runtime gate is active**
+현재 상태: **P1-F 최소 runtime slice는 Rust shared core로 선택했고, 네 플랫폼 direct runtime gate를 2026-09-28 완료**
 
 최종 제품 플랫폼:
 - macOS
@@ -86,11 +86,11 @@ P1-F의 목적은 "모바일만 가능한가"가 아니다. **Python reference�
 9. offline behavior와 Python-runtime independence를 확인한다.
 10. P1-A~P1-E Python reference regression을 유지한다.
 
-P1-F에서 선택한 최소 shared core는 Rust이며, versioned JSON C ABI로 platform host와 연결한다. Python은 conformance reference다. SQLite `user_version=1`과 NFKC UCD 16.0.0 contract를 고정한다. P1-F status는 네 플랫폼의 직접 target runtime proof와 full regression 완료 후에만 닫는다.
+P1-F에서 선택한 최소 shared core는 Rust이며, versioned JSON C ABI로 platform host와 연결한다. Python은 conformance reference다. SQLite `user_version=1`과 NFKC UCD 16.0.0 contract를 고정한다. 네 플랫폼 direct target runtime proof와 full regression은 [workflow run 36381612145](https://github.com/Box5789/marco-translator/actions/runs/36381612145)에서 완료했다. 같은 7-case fixture SHA-256은 `b099cfc595104ee80edbf5adc0b247587c9fcf1955a5f04e53a435e5748e845b`다.
 
 P1-F는 MARCO 전체 native 재작성, OCR, screen capture, overlay UI, store 배포를 요구하지 않는다. 다만 semantic engine이 stable boundary 뒤에서 교체 가능하다는 직접 fixture evidence는 필요하다.
 
-P1-F를 Complete로 선언하려면 macOS direct run, Windows native run, Android emulator/runtime smoke, iOS simulator/runtime smoke가 모두 요구된다. 환경 제약으로 하나라도 실행하지 못하면 그 항목은 blocked로 남기고 compile-only evidence로 대체하지 않는다.
+P1-F는 macOS direct run, Windows native run, Android emulator smoke, iOS simulator smoke가 모두 성공해 Complete다. compile-only evidence는 runtime smoke를 대체하지 않았다. 상세 measurements, dependency inventory, offline boundary, 회귀 결과 및 residual limits는 `work/current.md` Final closeout에 기록했다.
 
 ## 향후 Architecture ADR의 평가 후보
 
