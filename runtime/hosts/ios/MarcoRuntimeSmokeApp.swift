@@ -40,8 +40,8 @@ final class MarcoRuntimeSmokeApp: UIResponder, UIApplicationDelegate {
         let openStart = ProcessInfo.processInfo.systemUptime
         var runtime: OpaquePointer?
         let path = Data(database.path.utf8)
-        let openStatus = path.withUnsafeBufferPointer { bytes in
-            marco_runtime_open(bytes.baseAddress, path.count, &runtime)
+        let openStatus = path.withUnsafeBytes { bytes in
+            marco_runtime_open(bytes.bindMemory(to: UInt8.self).baseAddress, path.count, &runtime)
         }
         guard openStatus == MARCO_RUNTIME_OK, let handle = runtime else {
             throw SmokeError.status("open", statusName(openStatus))
@@ -114,8 +114,8 @@ final class MarcoRuntimeSmokeApp: UIResponder, UIApplicationDelegate {
         runtime = nil
 
         var reopened: OpaquePointer?
-        let reopenStatus = path.withUnsafeBufferPointer { bytes in
-            marco_runtime_open(bytes.baseAddress, path.count, &reopened)
+        let reopenStatus = path.withUnsafeBytes { bytes in
+            marco_runtime_open(bytes.bindMemory(to: UInt8.self).baseAddress, path.count, &reopened)
         }
         guard reopenStatus == MARCO_RUNTIME_OK, let reopenedHandle = reopened else {
             throw SmokeError.status("reopen", statusName(reopenStatus))

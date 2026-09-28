@@ -167,7 +167,7 @@ jobs:
           profile: pixel_7_pro
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
-            set -euo pipefail
+            set -eu
             ndk_home="$ANDROID_HOME/ndk/27.2.12479018"
             toolchain="$ndk_home/toolchains/llvm/prebuilt/linux-x86_64/bin"
             export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$toolchain/x86_64-linux-android35-clang"
@@ -184,9 +184,10 @@ jobs:
             adb push runtime/target/x86_64-linux-android/release/libmarco_runtime.so /data/local/tmp/p1f/
             adb push runtime/target/p1f/p1f_smoke_android /data/local/tmp/p1f/p1f_smoke
             adb shell 'chmod 755 /data/local/tmp/p1f/p1f_smoke'
-            adb shell 'cd /data/local/tmp/p1f && LD_LIBRARY_PATH=. ./p1f_smoke runtime.sqlite' | tee runtime/target/p1f/P1F_REPORT_android.txt
-            stat -c 'P1F_LIBRARY_BYTES=%s' runtime/target/x86_64-linux-android/release/libmarco_runtime.so | tee -a runtime/target/p1f/P1F_REPORT_android.txt
-            readelf -d runtime/target/x86_64-linux-android/release/libmarco_runtime.so | tee runtime/target/p1f/P1F_DEPENDENCIES_android.txt
+            adb shell 'cd /data/local/tmp/p1f && LD_LIBRARY_PATH=. ./p1f_smoke runtime.sqlite' > runtime/target/p1f/P1F_REPORT_android.txt
+            cat runtime/target/p1f/P1F_REPORT_android.txt
+            stat -c 'P1F_LIBRARY_BYTES=%s' runtime/target/x86_64-linux-android/release/libmarco_runtime.so >> runtime/target/p1f/P1F_REPORT_android.txt
+            readelf -d runtime/target/x86_64-linux-android/release/libmarco_runtime.so > runtime/target/p1f/P1F_DEPENDENCIES_android.txt
 
       - name: Upload Android evidence
         if: always()

@@ -1,0 +1,2 @@
+runtime/fixtures/*.json text eol=lf
+runtime/fixtures/*.sha256 text eol=lf
