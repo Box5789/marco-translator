@@ -44,3 +44,14 @@
 | QA-001 Offline | Offline-first runtime; loopback-only benchmark sandbox | P1-E runner launches local Ollama with cloud disabled and no proxies | two sandboxed direct macOS reports in `benchmarks/p1-e/results/` |
 | QA-002 Determinism | Frozen workload, model digest, prompt hashes, pinned MARCO revision | `benchmarks/p1-e/workload.v1.json` and versioned run reports | `test_rule_baseline_matches_every_frozen_case`; repeated outputs identical within and across reports |
 | QA-009 Performance | Comparable rule and local candidate measurements without setting a product threshold | P1-E runner records cold/warm latency, sampled process-tree RSS, and model bytes | two 50-call reports; exact environment, runner, workload, and prompt identities in ADR-006 |
+
+## P1-F traceability
+
+| Requirement / Use Case | Analysis / Design element | Current implementation / artifact | Required test evidence |
+|---|---|---|---|
+| FR-019, FR-020, FR-025 | P1-F JSON v1 contract and shared Rust core; ADR-007 | `schemas/marco-runtime-v1.schema.json`, `runtime/fixtures/conformance-v1.json`, `runtime/src/lib.rs`, `src/marco_translator/portable_contract.py` | frozen fixture SHA-256; `tests/test_p1f_conformance.py`; four target reports carry the same contract and fixture hash |
+| FR-021, FR-022 | C ABI and replaceable resolver/realizer seams; ADR-007 | `runtime/include/marco_runtime.h`, fixture resolver and null realizer in `runtime/src/lib.rs`, thin C and iOS hosts | isolated runtime has no Python/MARCO/network/model dependency; native C host and iOS simulator app execute fixture/orchestration checks |
+| FR-023, FR-003–FR-006 | shared SQLite v1 file contract; Session State remains ephemeral | `src/marco_translator/persistence_schema.py`, Python TM/Overlay stores, Rust runtime persistence | `tests/test_p1f_persistence.py`, C host close/reopen checks, Python↔Rust TM/Overlay file round-trip |
+| FR-024, QA-001, QA-011 | platform lifecycle stays outside semantic core; offline local operation | `runtime/hosts/c_smoke.c`, `runtime/hosts/ios/MarcoRuntimeSmokeApp.swift`, `.github/workflows/p1f-runtime-gate.yml` | macOS/Windows native process, Android emulator and iOS simulator smoke reports; linked dependency inventory and no runtime network API/dependency |
+| QA-008, QA-009 | portability/resource baseline only; no product budget selected | ADR-007 target rationale and per-platform report artifact | library bytes, startup/smoke CPU time where the host reports it, toolchain/runtime dependency inventory |
+| QA-010, QA-012 | store and FFI fail-closed contracts | Rust schema/status/input/output validation; Python store migration/rejection | incompatible/unknown SQLite version, invalid UTF-8/JSON/version/fields, input/output caps, invalid status, close/reopen cases |

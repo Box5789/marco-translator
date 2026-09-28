@@ -9,6 +9,7 @@ from typing import Any
 import uuid
 
 from .models import TermDecision
+from .persistence_schema import initialize_runtime_schema
 
 
 def _now() -> str:
@@ -58,7 +59,8 @@ class SQLiteUserOverlay:
         self._init_schema()
 
     def _init_schema(self) -> None:
-        self._db.executescript(
+        initialize_runtime_schema(
+            self._db,
             """
             CREATE TABLE IF NOT EXISTS terminology (
                 source_language TEXT NOT NULL,
@@ -125,7 +127,6 @@ class SQLiteUserOverlay:
             );
             """
         )
-        self._db.commit()
 
     def add_terminology(self, source: str, target: str, *, source_language: str = "zh",
                         target_language: str = "ko", domain: str | None = None,

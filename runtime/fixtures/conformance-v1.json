@@ -1,0 +1,315 @@
+{
+  "cases": [
+    {
+      "expected": {
+        "contract_version": "marco-runtime.v1",
+        "result": {
+          "confidence": 1.0,
+          "frame": {
+            "confidence": 1.0,
+            "domain": "gaming",
+            "intent": "warning",
+            "slots": {
+              "entity": "저격수",
+              "location": "서쪽"
+            },
+            "source_language": "zh",
+            "source_text": "西边有狙",
+            "style": "gaming",
+            "target_language": "ko",
+            "template": "{location}에 {entity} 있음",
+            "terms": [
+              {
+                "concept": "SNIPER",
+                "confidence": 0.99,
+                "evidence": [],
+                "layer": "base",
+                "source": "狙",
+                "target": "저격수"
+              }
+            ],
+            "unresolved": []
+          },
+          "path": "rule",
+          "source_text": "西边有狙",
+          "translated_text": "서쪽에 저격수 있음",
+          "warnings": []
+        }
+      },
+      "id": "west-sniper",
+      "request": {
+        "domain": "gaming",
+        "session_id": null,
+        "source_language": "zh",
+        "style": "neutral",
+        "target_language": "ko",
+        "text": "西边有狙"
+      }
+    },
+    {
+      "expected": {
+        "contract_version": "marco-runtime.v1",
+        "result": {
+          "confidence": 0.95,
+          "frame": {
+            "confidence": 0.95,
+            "domain": "gaming",
+            "intent": "warning",
+            "slots": {
+              "base": "본진",
+              "enemy": "적"
+            },
+            "source_language": "zh",
+            "source_text": "家里有人",
+            "style": "gaming",
+            "target_language": "ko",
+            "template": "{base}에 {enemy} 있음",
+            "terms": [
+              {
+                "concept": "OWN_BASE",
+                "confidence": 0.95,
+                "evidence": [],
+                "layer": "base",
+                "source": "家里",
+                "target": "본진"
+              }
+            ],
+            "unresolved": []
+          },
+          "path": "rule",
+          "source_text": "家里有人",
+          "translated_text": "본진에 적 있음",
+          "warnings": []
+        }
+      },
+      "id": "base-enemy",
+      "request": {
+        "domain": "gaming",
+        "session_id": null,
+        "source_language": "zh",
+        "style": "neutral",
+        "target_language": "ko",
+        "text": "家里有人"
+      }
+    },
+    {
+      "expected": {
+        "contract_version": "marco-runtime.v1",
+        "result": {
+          "confidence": 1.0,
+          "frame": {
+            "confidence": 1.0,
+            "domain": "gaming",
+            "intent": "request",
+            "slots": {
+              "location": "교회",
+              "object": "건축 자재"
+            },
+            "source_language": "zh",
+            "source_text": "教堂需要建材",
+            "style": "gaming",
+            "target_language": "ko",
+            "template": "{location}에 {object}가 필요함",
+            "terms": [
+              {
+                "concept": "CONSTRUCTION_MATERIAL",
+                "confidence": 0.99,
+                "evidence": [],
+                "layer": "base",
+                "source": "建材",
+                "target": "건축 자재"
+              }
+            ],
+            "unresolved": []
+          },
+          "path": "rule",
+          "source_text": "教堂需要建材",
+          "translated_text": "교회에 건축 자재가 필요함",
+          "warnings": []
+        }
+      },
+      "id": "church-materials",
+      "request": {
+        "domain": "gaming",
+        "session_id": null,
+        "source_language": "zh",
+        "style": "neutral",
+        "target_language": "ko",
+        "text": "教堂需要建材"
+      }
+    },
+    {
+      "expected": {
+        "contract_version": "marco-runtime.v1",
+        "result": {
+          "confidence": 1.0,
+          "frame": {
+            "confidence": 1.0,
+            "domain": "gaming",
+            "intent": "request",
+            "slots": {
+              "group": "뭉쳐서",
+              "push": "한 번에 밀자"
+            },
+            "source_language": "zh",
+            "source_text": "集合一波去啊",
+            "style": "gaming",
+            "target_language": "ko",
+            "template": "{group} {push}",
+            "terms": [],
+            "unresolved": []
+          },
+          "path": "rule",
+          "source_text": "集合一波去啊",
+          "translated_text": "뭉쳐서 한 번에 밀자",
+          "warnings": []
+        }
+      },
+      "id": "group-push",
+      "request": {
+        "domain": "gaming",
+        "session_id": null,
+        "source_language": "zh",
+        "style": "neutral",
+        "target_language": "ko",
+        "text": "集合一波去啊"
+      }
+    },
+    {
+      "expected": {
+        "contract_version": "marco-runtime.v1",
+        "result": {
+          "confidence": 1.0,
+          "frame": {
+            "confidence": 1.0,
+            "domain": "gaming",
+            "intent": "complaint",
+            "slots": {
+              "feed": "죽어주면",
+              "hopeless": "답이 없어",
+              "one_by_one": "한 명씩 가서"
+            },
+            "source_language": "zh",
+            "source_text": "一个一个送没辙",
+            "style": "gaming",
+            "target_language": "ko",
+            "template": "{one_by_one} {feed} {hopeless}",
+            "terms": [
+              {
+                "concept": "FEED_ENEMY",
+                "confidence": 0.94,
+                "evidence": [],
+                "layer": "base",
+                "source": "送",
+                "target": "킬 헌납"
+              }
+            ],
+            "unresolved": []
+          },
+          "path": "rule",
+          "source_text": "一个一个送没辙",
+          "translated_text": "한 명씩 가서 죽어주면 답이 없어",
+          "warnings": []
+        }
+      },
+      "id": "stop-feeding",
+      "request": {
+        "domain": "gaming",
+        "session_id": null,
+        "source_language": "zh",
+        "style": "neutral",
+        "target_language": "ko",
+        "text": "一个一个送没辙"
+      }
+    },
+    {
+      "expected": {
+        "contract_version": "marco-runtime.v1",
+        "result": {
+          "confidence": 0.0,
+          "frame": {
+            "confidence": 0.0,
+            "domain": "gaming",
+            "intent": "statement",
+            "slots": {},
+            "source_language": "zh",
+            "source_text": "完全未知的新句子",
+            "style": "neutral",
+            "target_language": "ko",
+            "template": null,
+            "terms": [],
+            "unresolved": [
+              "完",
+              "全",
+              "未",
+              "知",
+              "的",
+              "新",
+              "句",
+              "子"
+            ]
+          },
+          "path": "unresolved",
+          "source_text": "完全未知的新句子",
+          "translated_text": "",
+          "warnings": [
+            "no_grounded_deterministic_translation"
+          ]
+        }
+      },
+      "id": "unknown-remains-unresolved",
+      "request": {
+        "domain": "gaming",
+        "session_id": null,
+        "source_language": "zh",
+        "style": "neutral",
+        "target_language": "ko",
+        "text": "完全未知的新句子"
+      }
+    },
+    {
+      "expected": {
+        "contract_version": "marco-runtime.v1",
+        "result": {
+          "confidence": 0.0,
+          "frame": {
+            "confidence": 0.0,
+            "domain": "gaming",
+            "intent": "statement",
+            "slots": {},
+            "source_language": "zh",
+            "source_text": "ABC fi",
+            "style": "neutral",
+            "target_language": "ko",
+            "template": null,
+            "terms": [],
+            "unresolved": [
+              "A",
+              "B",
+              "C",
+              "f",
+              "i"
+            ]
+          },
+          "path": "unresolved",
+          "source_text": "ABC fi",
+          "translated_text": "",
+          "warnings": [
+            "no_grounded_deterministic_translation"
+          ]
+        }
+      },
+      "id": "nfkc-and-python-whitespace",
+      "request": {
+        "domain": "gaming",
+        "session_id": null,
+        "source_language": "zh",
+        "style": "neutral",
+        "target_language": "ko",
+        "text": "ＡＢＣ　ﬁ"
+      }
+    }
+  ],
+  "contract_version": "marco-runtime.v1",
+  "normalization_profile": "NFKC-UCD16.0.0+PY-RE-WHITESPACE-v1"
+}

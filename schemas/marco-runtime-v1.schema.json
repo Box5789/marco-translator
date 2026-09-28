@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Box5789/marco-translator/blob/main/schemas/marco-runtime-v1.schema.json",
+  "title": "MARCO portable runtime contract v1",
+  "description": "Versioned JSON requests and responses carried by the shared runtime C ABI.",
+  "oneOf": [
+    { "$ref": "#/$defs/translateRequest" },
+    { "$ref": "#/$defs/correctRequest" },
+    { "$ref": "#/$defs/bindSessionEntityRequest" },
+    { "$ref": "#/$defs/unbindSessionEntityRequest" },
+    { "$ref": "#/$defs/clearSessionRequest" },
+    { "$ref": "#/$defs/addTerminologyRequest" },
+    { "$ref": "#/$defs/disableTerminologyRequest" },
+    { "$ref": "#/$defs/pendingProposalsRequest" },
+    { "$ref": "#/$defs/proposalRequest" },
+    { "$ref": "#/$defs/routingWeightRequest" },
+    { "$ref": "#/$defs/adjustRoutingWeightRequest" },
+    { "$ref": "#/$defs/rollbackRoutingWeightRequest" },
+    { "$ref": "#/$defs/translationResponse" },
+    { "$ref": "#/$defs/correctionResponse" },
+    { "$ref": "#/$defs/proposalListResponse" },
+    { "$ref": "#/$defs/actionResponse" },
+    { "$ref": "#/$defs/weightResponse" },
+    { "$ref": "#/$defs/eventResponse" }
+  ],
+  "$defs": {
+    "version": { "const": "marco-runtime.v1" },
+    "nullableString": { "type": ["string", "null"] },
+    "request": {
+      "type": "object",
+      "properties": {
+        "text": { "type": "string" },
+        "source_language": { "type": "string" },
+        "target_language": { "type": "string" },
+        "domain": { "$ref": "#/$defs/nullableString" },
+        "style": { "type": "string" },
+        "session_id": { "$ref": "#/$defs/nullableString" }
+      },
+      "required": ["text", "source_language", "target_language", "domain", "style", "session_id"],
+      "additionalProperties": false
+    },
+    "termDecision": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "concept": { "type": "string" },
+        "target": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "layer": { "enum": ["base", "user", "session"] },
+        "evidence": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["source", "concept", "target", "confidence", "layer", "evidence"],
+      "additionalProperties": false
+    },
+    "semanticFrame": {
+      "type": "object",
+      "properties": {
+        "source_language": { "type": "string" },
+        "target_language": { "type": "string" },
+        "source_text": { "type": "string" },
+        "domain": { "$ref": "#/$defs/nullableString" },
+        "intent": { "type": "string" },
+        "style": { "type": "string" },
+        "terms": { "type": "array", "items": { "$ref": "#/$defs/termDecision" } },
+        "template": { "$ref": "#/$defs/nullableString" },
+        "slots": { "type": "object", "additionalProperties": { "type": "string" } },
+        "unresolved": { "type": "array", "items": { "type": "string" } },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "required": ["source_language", "target_language", "source_text", "domain", "intent", "style", "terms", "template", "slots", "unresolved", "confidence"],
+      "additionalProperties": false
+    },
+    "translationResult": {
+      "type": "object",
+      "properties": {
+        "source_text": { "type": "string" },
+        "translated_text": { "type": "string" },
+        "path": { "enum": ["session", "tm", "rule", "neural-realizer", "unresolved"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "frame": { "oneOf": [{ "$ref": "#/$defs/semanticFrame" }, { "type": "null" }] },
+        "warnings": { "type": "array", "items": { "enum": ["no_grounded_deterministic_translation"] } }
+      },
+      "required": ["source_text", "translated_text", "path", "confidence", "frame", "warnings"],
+      "additionalProperties": false
+    },
+    "proposal": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "source_language": { "type": "string" },
+        "target_language": { "type": "string" },
+        "domain": { "$ref": "#/$defs/nullableString" },
+        "source": { "type": "string" },
+        "target": { "type": "string" },
+        "evidence_count": { "type": "integer", "minimum": 1 },
+        "status": { "enum": ["pending", "accepted", "rejected"] }
+      },
+      "required": ["id", "type", "source_language", "target_language", "domain", "source", "target", "evidence_count", "status"],
+      "additionalProperties": false
+    },
+    "envelope": {
+      "type": "object",
+      "properties": { "contract_version": { "$ref": "#/$defs/version" } },
+      "required": ["contract_version"]
+    },
+    "translateRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "translate" }, "request": { "$ref": "#/$defs/request" } }, "required": ["operation", "request"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "correctRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "correct" }, "request": { "$ref": "#/$defs/request" }, "corrected_text": { "type": "string" }, "generated_text": { "$ref": "#/$defs/nullableString" } }, "required": ["operation", "request", "corrected_text"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "bindSessionEntityRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "bind_session_entity" }, "session_id": { "type": "string" }, "source": { "type": "string" }, "target": { "type": "string" }, "source_language": { "type": "string" }, "target_language": { "type": "string" }, "domain": { "$ref": "#/$defs/nullableString" }, "concept": { "type": "string" } }, "required": ["operation", "session_id", "source", "target", "source_language", "target_language", "domain", "concept"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "unbindSessionEntityRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "unbind_session_entity" }, "session_id": { "type": "string" }, "source": { "type": "string" }, "source_language": { "type": "string" }, "target_language": { "type": "string" }, "domain": { "$ref": "#/$defs/nullableString" } }, "required": ["operation", "session_id", "source", "source_language", "target_language", "domain"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "clearSessionRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "clear_session" }, "session_id": { "type": "string" } }, "required": ["operation", "session_id"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "addTerminologyRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "add_terminology" }, "source": { "type": "string" }, "target": { "type": "string" }, "source_language": { "type": "string" }, "target_language": { "type": "string" }, "domain": { "$ref": "#/$defs/nullableString" }, "concept": { "type": "string" }, "confidence": { "type": "number", "minimum": 0, "maximum": 1 }, "origin": { "type": "string" } }, "required": ["operation", "source", "target", "source_language", "target_language", "domain", "concept", "confidence", "origin"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "disableTerminologyRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "disable_terminology" }, "source": { "type": "string" }, "source_language": { "type": "string" }, "target_language": { "type": "string" }, "domain": { "$ref": "#/$defs/nullableString" } }, "required": ["operation", "source", "source_language", "target_language", "domain"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "pendingProposalsRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "pending_proposals" } }, "required": ["operation"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "proposalRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "enum": ["approve_proposal", "reject_proposal"] }, "proposal_id": { "type": "string" } }, "required": ["operation", "proposal_id"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "routingWeightRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "routing_weight" }, "domain": { "$ref": "#/$defs/nullableString" }, "candidate": { "type": "string" } }, "required": ["operation", "domain", "candidate"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "adjustRoutingWeightRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "adjust_routing_weight" }, "domain": { "$ref": "#/$defs/nullableString" }, "candidate": { "type": "string" }, "delta": { "type": "number" }, "reason": { "type": "string" } }, "required": ["operation", "domain", "candidate", "delta", "reason"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "rollbackRoutingWeightRequest": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "operation": { "const": "rollback_routing_weight" }, "event_id": { "type": "string" } }, "required": ["operation", "event_id"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "translationResponse": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "result": { "$ref": "#/$defs/translationResult" } }, "required": ["result"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "correctionResponse": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "result": { "type": "object", "properties": { "source_text": { "type": "string" }, "corrected_text": { "type": "string" }, "tm_written": { "type": "boolean" }, "proposal_id": { "$ref": "#/$defs/nullableString" }, "proposal_status": { "enum": ["pending", "accepted", "rejected", null] } }, "required": ["source_text", "corrected_text", "tm_written", "proposal_id", "proposal_status"], "additionalProperties": false } }, "required": ["result"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "proposalListResponse": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "result": { "type": "array", "items": { "$ref": "#/$defs/proposal" } } }, "required": ["result"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "actionResponse": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "result": { "type": "object", "properties": { "status": { "const": "ok" } }, "required": ["status"], "additionalProperties": false } }, "required": ["result"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "weightResponse": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "result": { "type": "object", "properties": { "weight": { "type": "number", "minimum": -0.1, "maximum": 0.1 } }, "required": ["weight"], "additionalProperties": false } }, "required": ["result"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "eventResponse": {
+      "allOf": [
+        { "$ref": "#/$defs/envelope" },
+        { "type": "object", "properties": { "result": { "type": "object", "properties": { "event_id": { "type": "string" } }, "required": ["event_id"], "additionalProperties": false } }, "required": ["result"] }
+      ],
+      "unevaluatedProperties": false
+    },
+    "errorStatus": {
+      "type": "integer",
+      "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+      "description": "Stable status IDs are defined in runtime/include/marco_runtime.h and docs/PORTABLE_RUNTIME_CONTRACT.md."
+    }
+  }
+}

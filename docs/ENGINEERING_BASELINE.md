@@ -240,17 +240,12 @@ Decision:
 - semantic decision은 upstream frame을 따른다.
 
 ### ADR-004 — Cross-platform core implementation technology
-Status: Proposed / Undecided
+Status: Accepted by P1-F evidence, 2026-09-28; direct four-platform acceptance remains a gate
 
 Decision:
-- 아직 선택하지 않는다.
+- Rust shared core를 P1-F 최소 product-runtime slice에 선택한다. 근거와 구체적인 boundary는 ADR-007을 따른다.
 
-Evidence required before decision:
-- P1 contract inventory
-- macOS benchmark
-- platform capability constraints
-- FFI/build/distribution analysis
-- model runtime requirements
+후속 semantic engine, model runtime, latency/RAM/binary product budget은 이 선택에 포함하지 않는다.
 
 Candidate set은 `docs/PLATFORM_STRATEGY.md`를 따른다.
 
@@ -333,3 +328,37 @@ Candidate asset provenance: `qwen3:0.6b-q4_K_M`, Ollama 0.34.0, manifest digest 
 Consequences:
 - P1-E is complete with the candidate held. Existing rule-only outputs remain the selected realization behavior for this workload.
 - A future candidate evaluation must preserve the frozen SemanticFrame authority and report semantic, terminology, fluency, resource, and invocation evidence independently.
+
+## 12. ADR-007 — P1-F shared runtime and persistence boundary
+
+Status: Architecture selected by direct source and capability evidence; four-platform gate remains active.
+
+Context and direct evidence:
+- The reference path in `models.py`, `normalizer.py`, `pipeline.py`, `realizer.py`, `tm.py`, and `user_state.py` uses Python dataclasses, `unicodedata`/`re` normalization, exact-match SQLite TM, user-scoped SQLite Overlay, and in-memory Session State. MARCO's `mco` import is isolated to the Python resolver adapter; a full native MARCO port is not required to test the resolver seam.
+- Rust 1.98.1 (`rustc` commit `48a229ceaefd4985c50990b14116b6d856af0985`) was installed in isolated `/tmp/marco-translator-p1f-rustup-20260928/home` with Cargo in `/tmp/marco-translator-p1f-cargo-20260928`; the exact toolchain directory occupied 1.1 GiB and the Cargo registry 46 MiB at validation. The Rust toolchain is dual MIT/Apache-2.0. Installed targets were `aarch64-apple-darwin`, `aarch64-apple-ios`, `aarch64-apple-ios-sim`, `aarch64-linux-android`, `x86_64-linux-android`, and `x86_64-pc-windows-msvc`. The disposable Python 3.14.7 test environment occupied 80 MiB; no system/global environment was changed.
+- An isolated Rust contract probe using `serde 1.0.228` (MIT/Apache-2.0), `serde_json 1.0.151` (MIT/Apache-2.0), and `unicode-normalization 0.1.24` (MIT/Apache-2.0) passed host JSON/normalization checks and `cargo check` for all four installed target triples. Version 0.1.24 pins Unicode 16.0.0, matching the observed Python 3.14.7 `unicodedata` version. Rust `char::is_whitespace` plus U+001C–U+001F matched Python `re` `\s` for every Unicode scalar value (29 whitespace scalars; 0 mismatches).
+- `rusqlite 0.40.2` (MIT) with bundled `libsqlite3-sys 0.38.2`/SQLite 3.53.2 (SQLite public domain) opened the actual Python-created `tm` and `terminology` tables, read both values, wrote an exact TM row, and set `PRAGMA user_version=1`. Python reopened the same file and read the Rust write plus its original rows. This verifies file and in-scope table interoperability on the host; target linkage and runtime are still pending.
+- Native C++20 compiled and ran a JSON/NFKC probe using the already-installed `nlohmann-json 3.12.0` (MIT) and ICU4C 78.3 (Unicode 17.0; ICU license). It works on this Mac, but its installed normalization data does not match Python's UCD 16.0; a pinned older ICU/data build and separate target dependency setup would be required to keep the contract exact. No cross-target C++ build was performed.
+- Python-only runtime does not satisfy AC-F4's no-Python product-runtime boundary. Independent native implementations would duplicate the normalizer, orchestration, persistence and failure rules on four targets. Both remain viable reference/host arrangements, not the shared semantic implementation.
+- Official platform references checked 2026-09-28: Rust [platform support](https://doc.rust-lang.org/rustc/platform-support.html), [iOS targets](https://doc.rust-lang.org/rustc/platform-support/apple-ios.html), and [Android targets/NDK requirement](https://doc.rust-lang.org/rustc/platform-support/android.html). iOS targets require Xcode SDKs; Android targets require the LTS NDK. The local Mac lacks both, so the completed pure-Rust target check is compile-check evidence only. GitHub-hosted macOS, Windows, and Android-emulator execution is available for the required direct target proof.
+
+Alternatives considered:
+| Option | Result | Reason |
+|---|---|---|
+| Rust shared semantic core | Selected | One typed implementation, C ABI usable by C/Objective-C/Swift/JNI hosts, pinned Unicode 16.0 data, successful four-target pure-Rust checks, and successful Python/Rust SQLite file round-trip. |
+| C/C++ shared core | Not selected | Host JSON/NFKC probe succeeds, but the available ICU uses Unicode 17.0 while the reference is Unicode 16.0; target package/version work is greater and not yet proven. Reconsider if later target evidence changes this cost. |
+| Platform-native semantic implementations | Rejected for this gate | Four implementations would create independent normalization, unresolved-safety, and persistence behavior rather than one shared core. |
+| Python product runtime | Rejected | It keeps the interpreter and MARCO Python package in the product execution path, violating AC-F4. Python remains the reference oracle. |
+| Rust core with JSON/file interchange in place of SQLite | Rejected | It adds export/import and migration paths while a direct file round-trip with existing Python stores has already passed. |
+
+Decision:
+- Use a Rust 1.98.1 shared runtime slice. Pin the contract dependencies in `runtime/Cargo.lock`: `serde_json 1.0.151`, `unicode-normalization 0.1.24` (UCD 16.0.0), and `rusqlite 0.40.2` with bundled SQLite. No runtime Python, `mco`, network, or model dependency is permitted.
+- Freeze normalization as NFKC using Unicode 16.0.0 data followed by the 29 code points matched by Python `re` `\\s`. Version the JSON request, result, frame, term and error/status contract; reject unknown versions and malformed/oversized input. The FFI v1 input limit is 1 MiB. Use a C ABI, opaque runtime handle, UTF-8 path/input, library-owned NUL-terminated JSON output released through the matching Rust free function, and numeric stable error codes. Host adapters may marshal path/lifecycle and call the API; they must not implement semantic rules.
+- Preserve the existing SQLite file boundary. Schema v1 uses `PRAGMA user_version=1`; a v0 file is accepted only after known TM/User Overlay columns and primary keys validate, then versioned without rewriting user rows. Unknown versions or incompatible known tables fail closed. TM, User Overlay and Session State retain separate tables/lifecycles; Base KG remains read-only.
+- Keep resolver and neural realizer replaceable through composition seams. The P1-F executable uses a deterministic fixture resolver and null neural realizer; no native MARCO semantic engine or model backend is selected.
+- Treat this ADR as architecture selection, not gate completion. AC-F7–F10 require direct macOS, Windows, Android-emulator, and iOS-simulator runtime evidence; failure or unavailable target evidence blocks P1-F completion.
+
+Consequences:
+- The portable core and versioned fixtures live under `runtime/`; Python conformance lives in the existing reference package/tests. Platform smoke hosts contain only lifecycle/FFI glue.
+- Python is the reference oracle. P1-F portable conformance is pinned to the observed Python 3.14.7 / UCD 16.0.0 reference environment.
+- Model acceleration strategy and final latency, RAM, and binary-size budgets remain open for evidence in a later phase.

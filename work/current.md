@@ -1,6 +1,6 @@
 # Current Task — P1-F Cross-platform Runtime Gate
 
-Status: Active — contract inventory and architecture evidence phase  
+Status: Active — portable slice 구현 완료, 4-platform direct runtime gate 및 회귀 검증 진행 중
 Branch: `p1/cross-platform-runtime-gate`  
 Parent baseline: `p1/tiny-realizer-benchmark@b0a2e2eedff9a1e139e3ba76676472af1e93325e`
 
@@ -243,12 +243,11 @@ compile/link 성공만으로 runtime 성공을 주장하지 않는다. Android/i
 
 ## Material decisions still open
 
-- selected product runtime strategy / shared core language
-- FFI surface shape
-- cross-platform persistence interchange versus direct SQLite-file compatibility boundary
 - semantic engine의 eventual native implementation strategy
 - per-platform model acceleration backend
 - final product latency/RAM/binary-size budgets
+
+P1-F 범위의 shared runtime, FFI, SQLite direct-file boundary는 source/toolchain/interoperability evidence 후 ADR-007에서 결정했다. 위 미결정 항목은 이번 slice가 확정하지 않는다.
 
 P1-F에서 직접 evidence가 필요한 항목만 결정한다. P2/P1-E 범위의 결정을 끌어오지 않는다.
 
@@ -267,7 +266,7 @@ P1-F에서 직접 evidence가 필요한 항목만 결정한다. P2/P1-E 범위�
 9. 한국어 commit title/body로 해당 branch에 commit/push하고 remote ref 확인
 10. P2 OCR/capture/overlay 구현은 시작하지 않음
 
-## Residual risks at task start
+## Initial residual risks (before P1-F probes)
 
 - product runtime strategy는 아직 evidence 없이 선택되지 않았다.
 - iOS/Android runtime smoke를 수행할 local/CI toolchain availability는 아직 probe 전이다.
@@ -275,6 +274,94 @@ P1-F에서 직접 evidence가 필요한 항목만 결정한다. P2/P1-E 범위�
 - MARCO 자체는 Python reference engine이므로 eventual native semantic engine은 P1-F에서 interface feasibility만 증명하고 full rewrite는 하지 않을 수 있다.
 - P1-E에서는 neural invocation rate가 0이었으므로 P1-F model-runtime backend는 선택 근거가 약하다.
 
-## Next step
+## Current next step
 
-documentation preflight와 Graphify orientation 후 runtime source/persistence/build dependency를 end-to-end로 조사한다. 그 다음 F1/F2 contract inventory와 conformance fixtures를 먼저 고정하고, architecture 후보 capability probe와 ADR evidence를 수집한다. evidence 전에는 Rust/C++/platform-native 중 어느 것도 선결정하지 않는다.
+정확한 Rust 1.98.1 host 검증과 최신 C ABI 경계 smoke를 마친다. 이후 CI에서 같은 fixture hash로 macOS, Windows, Android emulator, iOS simulator runtime을 검증하고 전체 Python/MARCO regression을 수행한다. 실패는 원인과 직접 증거를 기준으로 수정하며, gate 결과 전 P1-F를 닫지 않는다.
+
+## Engineering Record — P1-F recovery and evidence work (2026-09-28)
+
+### Goal, authority, scope, and stop condition
+
+- Goal and exact observable outcome: this record preserves the P1-F goal and acceptance map above. Python reference and the selected portable runtime must read the same versioned contract/fixture identities, preserve semantic/unknown/persistence behavior, and execute the minimum slice without Python on macOS, Windows, Android, and iOS.
+- Authority: the user explicitly authorized full-scope P1-F on `p1/cross-platform-runtime-gate`, including required validation and Korean commit/push. The isolated public toolchain/dependency boundary in this file is pre-authorized. No approval is inferred for system package-manager changes, global installs, private or paid services, overwriting user state, or downloads above the recorded size limits.
+- Scope: AC-F1–AC-F15 and phases F1–F6 above. Non-goals remain OCR, capture, overlay/UI, full app/release, full MARCO rewrite absent gate evidence, new realizer selection, P1-D contract redesign, PR merge, and release/tag.
+- Stop: meet every applicable acceptance criterion with direct evidence, complete the four target runtime checks and P1-A–P1-E regression/integration, update canonical records, then commit/push this branch and verify both refs. Do not start P2.
+
+### Baseline and recovered state
+
+- Repository: `Box5789/marco-translator`; branch `p1/cross-platform-runtime-gate` tracks `origin/p1/cross-platform-runtime-gate`.
+- Baseline: `cd7856c1d9ee2bb2c9de3ca6a05e00a3c84284bc`; local and remote matched. The tracked worktree and index were clean.
+- Preserved pre-existing state: untracked `graphify-out/` from P1-E. Do not commit, regenerate, or overwrite it without checking the recorded baseline.
+- Parent P1-E baseline: `b0a2e2eedff9a1e139e3ba76676472af1e93325e`.
+
+### Documentation preflight
+
+| Candidate | Status | Relevance |
+|---|---|---|
+| `AGENTS.md`, `AGENT_GUIDE.md`, `work/current.md` | Read | authority, product invariants, active scope |
+| `AGENT_HANDOFF.md`, `docs/AGENT_HANDOFF.md` | Absent | no handoff in target tree |
+| `work/p1-e-tiny-realizer-benchmark.md` | Read | carry-forward semantic and realizer evidence |
+| `work/p1-d-knowledge-maintenance.md` | Not applicable | P1-D behavior is excluded; ADR-005 is the active canonical boundary |
+| `README.md` | Read | runtime, Python-reference, and MARCO overview |
+| `docs/REQUIREMENTS.md`, `docs/ENGINEERING_BASELINE.md` | Read | FR/QA, operation contracts, ADR-003–006 |
+| `docs/PLATFORM_STRATEGY.md`, `docs/TEST_STRATEGY.md`, `docs/TRACEABILITY.md`, `docs/P1.md` | Read | P1-F gate, validation, requirement mapping, phase closure |
+| `docs/ARCHITECTURE.md`, `docs/MARCO_PROTOCOL.md`, `docs/AUTOMATIC_LEARNING.md` | Read | semantic authority, resolver seam, state ownership |
+| `schemas/translation-log.schema.json`, `schemas/kg-patch.schema.json`, `prompts/kg-maintenance.md` | Read | log/persistent contract inventory; P1-D proposal boundary |
+| `pyproject.toml`, `pytest.ini`, `.github/workflows/p1-marco-integration.yml` | Read | runtime/test dependencies and current integration CI |
+| Runtime sources and `test_pipeline.py`, `test_marco_adapter.py`, `test_user_overlay.py`, `test_marco_integration.py` | Read | request-to-result and persistence/interchange paths |
+| `$apply-software-engineering-discipline` and all nine references | Read | complete workflow, including conditional OOP and delivery checks |
+| `caveman`, `ponytail` | Read | concise Korean and minimum sufficient changes |
+| `references/object-oriented-design.md` | Read; applicable | service seams and state-owning persistence objects are in scope |
+| External standards certification | Not applicable | no certification or standards-compliance claim is planned |
+| Skill maintenance validation | Not applicable | the skill itself is not being changed |
+
+### Graphify and direct navigation evidence
+
+- Existing graph: `graphify-out/graph.json`, generated from P1-E and potentially stale for this branch; 677 nodes and 1,381 links. Read-only inline BFS ran with the already-installed `/Users/pck2790/.local/share/uv/tools/graphifyy/bin/python`; `graphify` and `networkx` imports succeeded. No lessons file or `wiki/index.md` exists.
+- The graph navigated to `models.py` (`TranslationRequest`, `TermDecision`, `SemanticFrame`, `TranslationResult`), `pipeline.py` (`Translator.translate`), `marco_adapter.py` (`MarcoResolver`), `tm.py`, and `user_state.py`. Canonical docs and direct source/tests below supersede graph suggestions.
+
+### Requirements, use case, and operation contract
+
+- Primary actor: translation user; conformance evaluator supplies frozen requests and persistence fixtures.
+- Preconditions: contract/fixture version and hashes are pinned; resolver and realizer implementations satisfy declared boundaries; runtime is local and offline.
+- Success: the same valid request yields equal semantic fields and deterministic output across the Python reference and portable slice; exact TM and approved user state survive close/reopen; session bindings remain ephemeral.
+- Failure: malformed or unsupported boundary input returns a stable error/status; an unresolved frame stays unresolved and never reaches an unconstrained neural realizer; Base KG remains unchanged.
+- Operations: normalize then check session exact match, check exact TM, resolve a `SemanticFrame`, try deterministic realization, call neural realization only for a grounded rule miss, otherwise return unresolved. Explicit correction writes exact TM and may create a pending User Overlay proposal; approval is explicit.
+- Canonical/persisted/display state: Base KG is read-only; TM and User Overlay are user-scoped SQLite state; Session State is memory-only; JSONL logging is append-only output. Runtime core must not merge these ownership boundaries.
+
+### Confirmed source findings and coupling inventory
+
+- `models.py` uses Python dataclasses and `asdict`; `TranslationResult.path` and `metadata` are open-ended. These are Python representations, not yet a versioned portable contract.
+- `normalizer.py` uses Python `unicodedata.normalize("NFKC")` plus Unicode whitespace collapse. Cross-runtime normalization needs fixture-level parity.
+- `pipeline.py` owns orchestration. Current precedence is session exact match, TM exact match, resolver, rule realizer, grounded-only neural fallback, unresolved. `MarcoResolver` uses dependency injection in tests and imports `mco` only in its file-loading constructor.
+- `tm.py` and `user_state.py` use standard-library `sqlite3`; empty string represents a null domain. TM, overlay terminology, correction/proposal, and reversible route-weight event tables are created lazily without an explicit schema-version marker. `SessionStateStore` is in-memory.
+- `logger.py` appends JSONL with UUID and timestamp; translation and correction records currently use different schema-version strings. The existing log schema is permissive and is not by itself a strict request/result contract.
+- Runtime sources otherwise use Python standard-library facilities. `mco`, NumPy, and Pillow belong to optional MARCO build/integration paths; `maintenance.py`, `patches.py`, and `knowledge_version.py` remain in the separate P1-D maintenance plane.
+- OOP record: `TranslationRequest`, `TermDecision`, `SemanticFrame`, and `TranslationResult` are immutable/mutable value-like records as currently implemented; `Translator` is the orchestration service; resolver/realizer are composition seams; TM, Overlay, and Session stores own distinct state/lifecycles. A portable design must preserve these boundaries without adding inheritance by default.
+
+### Initial capability probe (macOS 26.6.2, arm64, 32 GiB)
+
+- Present: Apple Clang 21.0.1, CMake 4.4.3, Swift 6.3.3, .NET SDK 10.0.301, SQLite 3.51.0, Java 26. Android SDK/ADB/NDK, Gradle, and Xcode `simctl` are absent. An isolated Rust 1.98.1 toolchain was subsequently installed under `/tmp/marco-translator-p1f-rustup-20260928`; no global or system package state was changed.
+- `xcodebuild -version` cannot run because only Command Line Tools are active; `xcrun --sdk iphoneos --show-sdk-path` reports the iPhoneOS SDK is absent. iOS simulator availability remains unverified locally.
+- Native C++ can compile/link/run against host SQLite (`sqlite3_open(":memory:")` returned 0). This is host-only evidence, not four-platform capability.
+- Python 3.14.7 system runtime has no `pytest` or `mco`; the existing disposable P1-E `/tmp` venv has pytest 9.1.1, `mco` 0.1.0, NumPy 2.5.3, Pillow 12.3.0, and the editable translator package. The guessed `/tmp` P1-E upstream checkout location was absent; the exact prior checkout path is unknown. Actual MARCO integration setup still needs locating or recreating within the authorized isolated boundary.
+
+### Candidate probes and evidence-backed selection
+
+- Rust isolated probe: `serde_json 1.0.151`, `unicode-normalization 0.1.24`, and a strict versioned JSON record passed host tests and `cargo check` for `aarch64-apple-ios`, `aarch64-apple-ios-sim`, `aarch64-linux-android`, and `x86_64-pc-windows-msvc`. The normalization crate uses UCD 16.0.0, matching Python 3.14.7. Rust's whitespace set plus U+001C–U+001F was compared against Python `re` `\\s` over every Unicode scalar: 29 values on each side, zero mismatches.
+- Rust SQLite probe: `rusqlite 0.40.2` with bundled SQLite 3.53.2 read Python-created `tm` and `terminology` tables, wrote a TM entry, set `PRAGMA user_version=1`, then the Python stores reopened the same file and read both original and Rust-written data. Host evidence passed.
+- Full `rusqlite` bundled-SQLite cross-check could not run locally for iOS, Android, or Windows: `libsqlite3-sys` required the absent Xcode iOS SDK, Android NDK compiler, or Windows MSVC toolchain. This is an environment limitation, not a target runtime result. GitHub-hosted macOS/Windows and an Android emulator runner are the planned direct validation path.
+- Native C++20 JSON/NFKC probe passed on macOS with existing `nlohmann-json 3.12.0` and ICU4C 78.3. ICU reports Unicode 17.0.0, while the Python reference reports Unicode 16.0.0. Matching the reference would require selecting/building a different ICU data version and provisioning that dependency for every target. No C++ cross-target build was run.
+- Python-only runtime is excluded by AC-F4. Platform-native semantic implementations would duplicate the same normalizer, orchestration, unresolved gate, and persistence decisions. Direct Python/Rust DB interoperability and stable SQLite file format support the existing-file boundary over an additional export/import format.
+- Decision recorded in `docs/ENGINEERING_BASELINE.md` ADR-007: select a Rust shared core; use strict versioned JSON over a C ABI; pin NFKC to UCD 16.0.0 and cap FFI input at 1 MiB; return library-owned NUL-terminated JSON strings through an explicit Rust release function; retain SQLite with `user_version=1`, recognizing validated schema v0 and rejecting unknown/incompatible versions. The resolver uses fixtures and the neural seam is null; no semantic engine or model runtime is selected.
+- This is an architecture selection only. Direct SQLite bundled cross-builds and AC-F7–F10 runtime evidence remain required before acceptance.
+
+### Acceptance map at architecture-selection checkpoint (historical)
+
+At this checkpoint AC-F1–AC-F15 were **Pending**. ADR-007 recorded the evidence-backed architecture and persistence decisions; the portable contract, Rust slice, Python conformance, schema migration guard, and four target smoke paths were not yet implemented. The completion state is recorded below in the final Engineering Record.
+
+### Validation and residual risk at architecture-selection checkpoint (historical)
+
+- Repository baseline/status, Graphify graph/interpreter, source inventories, macOS tool availability, and the host SQLite probe were checked read-only; no product test suite has run yet.
+- Local iOS simulator and Android runtime are unavailable in the present host environment. CI/simulator route is not yet proven; this blocks the corresponding criteria until direct target smoke succeeds.
+- The Python request has no byte/length ceiling; the new versioned FFI contract sets a 1 MiB input limit. Python source compatibility remains unlimited; the reference conformance path uses Python 3.14.7 / UCD 16.0.0.

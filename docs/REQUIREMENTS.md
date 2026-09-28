@@ -75,7 +75,7 @@
 | QA-005 | Rollback | 사용자가 과거 version 지정 | 해당 canonical version 복구 | version identity와 canonical content가 기대값과 일치 |
 | QA-006 | Traceability | 외부 LLM이 evidence를 참조 | exact source event를 역추적 가능 | dangling evidence reference 0 |
 | QA-007 | Privacy | 사용자가 maintenance를 사용하지 않음 | 자동 외부 전송 없음 | background cloud upload 0 |
-| QA-008 | Portability | 같은 translation contract를 다른 플랫폼에서 구현 | 플랫폼 adapter 없이 core schema를 해석 가능 | schema/fixture parity; 구체 성능 한계는 P1-F에서 측정 |
+| QA-008 | Portability | 같은 translation contract를 다른 플랫폼에서 구현 | 플랫폼 adapter 없이 core schema를 해석 가능 | schema/fixture parity; P1-F는 자원 기준선을 측정하고 제품 budget은 정하지 않음 |
 | QA-009 | Performance | macOS에서 reference workload 실행 | P1-E/P1-F에서 동일 workload 기준 측정 | latency/RAM/model size 목표는 현재 Measurement Needed |
 | QA-010 | Compatibility | persistent schema/version 변화 | 기존 지원 version을 읽거나 명시적 migration/rejection | silent corruption 0 |
 | QA-011 | Runtime portability | 동일 frozen runtime contract를 네 target에서 build/run | 플랫폼별 adapter 차이와 무관하게 core fixture 의미 유지 | required conformance mismatch 0 |

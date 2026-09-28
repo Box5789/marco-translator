@@ -3,6 +3,8 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
+from .persistence_schema import initialize_runtime_schema
+
 
 class SQLiteTranslationMemory:
     """Exact-match TM for the reference runtime.
@@ -13,7 +15,8 @@ class SQLiteTranslationMemory:
 
     def __init__(self, path: str | Path = ":memory:") -> None:
         self._db = sqlite3.connect(str(path))
-        self._db.execute(
+        initialize_runtime_schema(
+            self._db,
             """
             CREATE TABLE IF NOT EXISTS tm (
                 source_language TEXT NOT NULL,
@@ -26,7 +29,6 @@ class SQLiteTranslationMemory:
             )
             """
         )
-        self._db.commit()
 
     def lookup(self, source_language: str, target_language: str, domain: str | None, text: str) -> str | None:
         row = self._db.execute(

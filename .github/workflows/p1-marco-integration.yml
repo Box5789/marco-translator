@@ -24,19 +24,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: DoTaeIn/Marco
+          ref: ffedc8b8552505e515b8f5ea2ae7f9934d7ef58e
           path: upstream-marco
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.14.7'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install numpy pillow pytest
-          python -m pip install -e upstream-marco
-          python -m pip install -e .
+          python -m pip install -e ".[test,marco]" -e "upstream-marco[marco]"
 
       - name: Unit tests
         run: pytest -q tests/test_pipeline.py tests/test_maintenance.py tests/test_marco_adapter.py tests/test_user_overlay.py

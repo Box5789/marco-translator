@@ -13,7 +13,7 @@ dependencies = []
 
 [project.optional-dependencies]
 marco = ["numpy"]
-test = ["pytest>=7"]
+test = ["pytest>=7", "jsonschema>=4.23,<5"]
 
 [project.scripts]
 marco-translate = "marco_translator.cli:main"

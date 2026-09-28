@@ -1,0 +1,228 @@
+name: P1-F portable runtime gate
+
+on:
+  push:
+    branches:
+      - p1/cross-platform-runtime-gate
+  pull_request:
+    branches:
+      - p1/cross-platform-runtime-gate
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python-regression:
+    name: Python reference and actual MARCO regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout translator
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned upstream MARCO
+        uses: actions/checkout@v4
+        with:
+          repository: DoTaeIn/Marco
+          ref: ffedc8b8552505e515b8f5ea2ae7f9934d7ef58e
+          path: upstream-marco
+
+      - name: Set up Python reference
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.14.7
+
+      - name: Install isolated test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[test,marco]" -e "upstream-marco[marco]"
+
+      - name: Build actual MARCO pack
+        run: python scripts/build_marco_pack.py --marco-root upstream-marco --output build/zh-ko-gaming.mco
+
+      - name: Run complete translator regression with actual MARCO
+        env:
+          MCO_MARCO_ROOT: ${{ github.workspace }}/upstream-marco
+          MARCO_TRANSLATOR_MCO: ${{ github.workspace }}/build/zh-ko-gaming.mco
+        run: python -m pytest -q tests
+
+      - name: Upload actual MARCO pack
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1f-zh-ko-gaming-mco
+          path: build/zh-ko-gaming.mco
+          if-no-files-found: ignore
+
+  macos-runtime:
+    name: macOS native runtime and SQLite interop
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - name: Checkout translator
+        uses: actions/checkout@v4
+
+      - name: Set up Python fixture generator
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.14.7
+
+      - name: Install Python reference package
+        run: python -m pip install -e .
+
+      - name: Build, test, link, and run native C host
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/p1f_generate_c_fixtures.py runtime/target/p1f/fixture_cases.h
+          (cd runtime && cargo test --locked)
+          (cd runtime && cargo build --release --locked)
+          clang -std=c11 -O2 -Wall -Wextra -Werror \
+            -Iruntime/include -Iruntime/target/p1f runtime/hosts/c_smoke.c \
+            -Lruntime/target/release -lmarco_runtime \
+            -Wl,-rpath,"$GITHUB_WORKSPACE/runtime/target/release" \
+            -o runtime/target/p1f/p1f_smoke
+          printf 'P1F_NETWORK_POLICY=sandbox-exec deny network*\n' | tee runtime/target/p1f/P1F_NETWORK_POLICY_macos.txt
+          sandbox-exec -p '(version 1)(allow default)(deny network*)' runtime/target/p1f/p1f_smoke "$RUNNER_TEMP/p1f-macos-runtime.sqlite" | tee runtime/target/p1f/P1F_REPORT_macos.txt
+          runtime_lib_bytes="$(stat -f '%z' runtime/target/release/libmarco_runtime.dylib)"
+          printf 'P1F_LIBRARY_BYTES=%s\n' "$runtime_lib_bytes" | tee -a runtime/target/p1f/P1F_REPORT_macos.txt
+          otool -L runtime/target/release/libmarco_runtime.dylib | tee runtime/target/p1f/P1F_DEPENDENCIES_macos.txt
+          sandbox-exec -p '(version 1)(allow default)(deny network*)' python scripts/p1f_python_rust_interop.py runtime/target/release/libmarco_runtime.dylib | tee -a runtime/target/p1f/P1F_REPORT_macos.txt
+
+      - name: Upload macOS evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1f-macos-runtime-evidence
+          path: runtime/target/p1f/P1F_*
+          if-no-files-found: error
+
+  windows-runtime:
+    name: Windows native runtime
+    runs-on: windows-2025
+    timeout-minutes: 35
+    steps:
+      - name: Checkout translator
+        uses: actions/checkout@v4
+
+      - name: Configure MSVC developer environment
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1
+        with:
+          arch: amd64
+
+      - name: Set up Python fixture generator
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.14.7
+
+      - name: Build, link, and run native C host
+        shell: pwsh
+        working-directory: runtime
+        run: |
+          python ..\scripts\p1f_generate_c_fixtures.py target\p1f\fixture_cases.h
+          cargo test --locked
+          cargo build --release --locked
+          cl /nologo /utf-8 /W4 /WX /Iinclude /Itarget\p1f hosts\c_smoke.c target\release\marco_runtime.dll.lib /Fe:target\p1f\p1f_smoke.exe
+          Copy-Item target\release\marco_runtime.dll target\p1f\marco_runtime.dll
+          .\target\p1f\p1f_smoke.exe "$env:RUNNER_TEMP\p1f-windows-runtime.sqlite" | Tee-Object -FilePath target\p1f\P1F_REPORT_windows.txt
+          $libraryBytes = (Get-Item target\release\marco_runtime.dll).Length
+          "P1F_LIBRARY_BYTES=$libraryBytes" | Tee-Object -Append -FilePath target\p1f\P1F_REPORT_windows.txt
+          dumpbin /DEPENDENTS target\release\marco_runtime.dll | Tee-Object -FilePath target\p1f\P1F_DEPENDENCIES_windows.txt
+
+      - name: Upload Windows evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1f-windows-runtime-evidence
+          path: runtime/target/p1f/P1F_*
+          if-no-files-found: error
+
+  android-runtime:
+    name: Android emulator native runtime
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout translator
+        uses: actions/checkout@v4
+
+      - name: Set up Python fixture generator
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.14.7
+
+      - name: Enable KVM for the emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Build Android library and run on emulator
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          ndk: 27.2.12479018
+          profile: pixel_7_pro
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            set -euo pipefail
+            ndk_home="$ANDROID_HOME/ndk/27.2.12479018"
+            toolchain="$ndk_home/toolchains/llvm/prebuilt/linux-x86_64/bin"
+            export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$toolchain/x86_64-linux-android35-clang"
+            export CC_x86_64_linux_android="$toolchain/x86_64-linux-android35-clang"
+            export AR_x86_64_linux_android="$toolchain/llvm-ar"
+            (cd runtime && cargo build --release --locked --target x86_64-linux-android)
+            python scripts/p1f_generate_c_fixtures.py runtime/target/p1f/fixture_cases.h
+            "$toolchain/x86_64-linux-android35-clang" -std=c11 -O2 -Wall -Wextra -Werror \
+              -Iruntime/include -Iruntime/target/p1f runtime/hosts/c_smoke.c \
+              -Lruntime/target/x86_64-linux-android/release -lmarco_runtime \
+              -o runtime/target/p1f/p1f_smoke_android
+            adb shell 'rm -rf /data/local/tmp/p1f'
+            adb shell 'mkdir -p /data/local/tmp/p1f'
+            adb push runtime/target/x86_64-linux-android/release/libmarco_runtime.so /data/local/tmp/p1f/
+            adb push runtime/target/p1f/p1f_smoke_android /data/local/tmp/p1f/p1f_smoke
+            adb shell 'chmod 755 /data/local/tmp/p1f/p1f_smoke'
+            adb shell 'cd /data/local/tmp/p1f && LD_LIBRARY_PATH=. ./p1f_smoke runtime.sqlite' | tee runtime/target/p1f/P1F_REPORT_android.txt
+            stat -c 'P1F_LIBRARY_BYTES=%s' runtime/target/x86_64-linux-android/release/libmarco_runtime.so | tee -a runtime/target/p1f/P1F_REPORT_android.txt
+            readelf -d runtime/target/x86_64-linux-android/release/libmarco_runtime.so | tee runtime/target/p1f/P1F_DEPENDENCIES_android.txt
+
+      - name: Upload Android evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1f-android-runtime-evidence
+          path: runtime/target/p1f/P1F_*
+          if-no-files-found: error
+
+  ios-runtime:
+    name: iOS simulator native runtime
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - name: Checkout translator
+        uses: actions/checkout@v4
+
+      - name: Build simulator static library
+        working-directory: runtime
+        run: cargo build --release --locked --target aarch64-apple-ios-sim
+
+      - name: Build and run iOS simulator host
+        shell: bash
+        run: bash scripts/run_p1f_ios_simulator.sh
+
+      - name: Record linked dependencies and library size
+        shell: bash
+        run: |
+          stat -f 'P1F_LIBRARY_BYTES=%z' runtime/target/aarch64-apple-ios-sim/release/libmarco_runtime.a | tee runtime/target/p1f/P1F_RESOURCE_ios.txt
+          xcrun --sdk iphonesimulator --show-sdk-version | tee runtime/target/p1f/P1F_IOS_SDK.txt
+          otool -L runtime/target/ios-derived/Build/Products/Release-iphonesimulator/MarcoRuntimeSmoke.app/MarcoRuntimeSmoke | tee runtime/target/p1f/P1F_DEPENDENCIES_ios.txt
+
+      - name: Upload iOS evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1f-ios-runtime-evidence
+          path: runtime/target/p1f/P1F_*
+          if-no-files-found: error

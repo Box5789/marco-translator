@@ -107,4 +107,4 @@ Current direct validation is macOS-first.
 
 Shared semantic, persistence and maintenance contracts must not require platform UI types or Python object identity. Screen capture, OCR, overlay/UI, model acceleration, permissions and lifecycle are expected platform variation points.
 
-The shared native core implementation technology is intentionally undecided until P1-F. See `docs/PLATFORM_STRATEGY.md`.
+P1-F selects a Rust shared core for the minimum portable runtime slice. Hosts call its versioned C ABI; platform wrappers own lifecycle and storage paths. The Python implementation remains the reference oracle. This does not select the eventual MARCO semantic engine or a model backend. See ADR-007 in `docs/ENGINEERING_BASELINE.md` and the still-active target gate in `work/current.md`.

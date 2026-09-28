@@ -2,7 +2,7 @@
 
 ## Decision status
 
-현재 상태: **Constraints accepted, implementation technology undecided**
+현재 상태: **Rust shared core selected for the P1-F minimum runtime slice; target runtime gate is active**
 
 최종 제품 플랫폼:
 - macOS
@@ -13,7 +13,7 @@
 현재 개발/직접 검증 우선 플랫폼:
 - macOS
 
-이 문서는 Rust/C++/Swift 등 특정 구현 기술을 선택하는 ADR이 아니다.
+전체 앱이나 최종 semantic/model runtime 선택은 아니다. 결정 근거와 제한은 `docs/ENGINEERING_BASELINE.md` ADR-007을 따른다.
 
 ## 공통 Core 계약으로 유지할 영역
 
@@ -39,7 +39,7 @@
 | Screen capture | platform API | platform API | platform API | platform 제약 검증 필요 | P2/P1-F 전 미결정 |
 | OCR | capability benchmark 필요 | capability benchmark 필요 | capability benchmark 필요 | capability benchmark 필요 | 미결정 |
 | Overlay/UI | native host 검증 | native host 검증 | native host 검증 | OS 정책/UX 검증 필요 | 미결정 |
-| Model acceleration | Apple capability 측정 | Windows capability 측정 | Android capability 측정 | Apple capability 측정 | P1-E/P1-F에서 결정 |
+| Model acceleration | Apple capability 측정 | Windows capability 측정 | Android capability 측정 | Apple capability 측정 | 후속 근거 수집 후 결정; P1-F는 model backend를 선택하지 않음 |
 | Persistence location | app sandbox 정책 | app data 정책 | app sandbox 정책 | app sandbox 정책 | adapter |
 | Permissions/lifecycle | macOS 정책 | Windows 정책 | Android 정책 | iOS 정책 | adapter |
 
@@ -86,6 +86,8 @@ P1-F의 목적은 "모바일만 가능한가"가 아니다. **Python reference�
 9. offline behavior와 Python-runtime independence를 확인한다.
 10. P1-A~P1-E Python reference regression을 유지한다.
 
+P1-F에서 선택한 최소 shared core는 Rust이며, versioned JSON C ABI로 platform host와 연결한다. Python은 conformance reference다. SQLite `user_version=1`과 NFKC UCD 16.0.0 contract를 고정한다. P1-F status는 네 플랫폼의 직접 target runtime proof와 full regression 완료 후에만 닫는다.
+
 P1-F는 MARCO 전체 native 재작성, OCR, screen capture, overlay UI, store 배포를 요구하지 않는다. 다만 semantic engine이 stable boundary 뒤에서 교체 가능하다는 직접 fixture evidence는 필요하다.
 
 P1-F를 Complete로 선언하려면 macOS direct run, Windows native run, Android emulator/runtime smoke, iOS simulator/runtime smoke가 모두 요구된다. 환경 제약으로 하나라도 실행하지 못하면 그 항목은 blocked로 남기고 compile-only evidence로 대체하지 않는다.
@@ -112,4 +114,4 @@ P1-F를 Complete로 선언하려면 macOS direct run, Windows native run, Androi
 - macOS/Windows/Android/iOS distribution constraints
 - test fixture 재사용 가능성
 
-현재 단계에서 특정 후보를 preferred architecture로 기록하지 않는다.
+ADR-007 이전 후보 비교 기록은 `work/current.md` Engineering Record에, 최종 결정은 ADR-007에 있다. 이후 model acceleration과 product resource budget은 미결정이다.
