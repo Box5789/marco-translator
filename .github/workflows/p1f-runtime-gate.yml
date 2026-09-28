@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - p1/cross-platform-runtime-gate
+      - p2/macos-capture-ocr-overlay
   pull_request:
     branches:
       - p1/cross-platform-runtime-gate

@@ -115,3 +115,28 @@ P1-F는 macOS direct run, Windows native run, Android emulator smoke, iOS simula
 - test fixture 재사용 가능성
 
 ADR-007 이전 후보 비교 기록은 `work/current.md` Engineering Record에, 최종 결정은 ADR-007에 있다. 이후 model acceleration과 product resource budget은 미결정이다.
+
+
+## P2-A macOS host vertical slice
+
+P2-A는 macOS를 첫 제품 host로 사용해 다음 user-visible pipeline을 직접 검증한다.
+
+```text
+explicit user trigger
+→ authorized screen/window/region capture
+→ local OCR
+→ translation backend adapter
+→ transient overlay
+```
+
+P2-A는 continuous/background capture를 기본 scope로 삼지 않는다. 최소 vertical slice는 one-shot user-triggered capture이며, 실제 capability/UX evidence가 더 강한 흐름을 요구할 때만 material decision으로 확장한다.
+
+Architecture rule:
+
+- capture, OCR, permission, window/overlay lifecycle은 macOS host adapter 책임이다.
+- semantic meaning, TM/User Overlay, unresolved safety는 shared runtime/backend 책임이다.
+- host는 domain translation rule을 복제하지 않는다.
+- raw capture/OCR text는 기본적으로 ephemeral이며 자동 cloud upload나 persistent logging을 하지 않는다.
+- overlay가 다음 capture에 다시 들어가는 self-feedback cycle을 명시적으로 차단한다.
+
+구체 API/프레임워크(Screen capture API, OCR engine, AppKit/SwiftUI 조합)는 현재 source와 macOS SDK capability probe 후 ADR로 결정한다. native platform feature가 confirmed criteria를 충족하면 새 third-party dependency보다 우선한다.

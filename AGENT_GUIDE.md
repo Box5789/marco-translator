@@ -117,14 +117,11 @@ runtime logs
 
 ## 현재 단계
 
-P1-A부터 P1-E까지 구현·검증 기준이 완료됐다. P1-E 후보 결정과 남은 품질 한계는 `docs/ENGINEERING_BASELINE.md` ADR-006과 `work/p1-e-tiny-realizer-benchmark.md`에 보존한다.
+P1-A부터 P1-F까지 구현·검증 기준이 완료됐다. P1-F의 cross-platform runtime 결정과 네 플랫폼 증거는 `docs/ENGINEERING_BASELINE.md` ADR-007과 `work/p1-f-cross-platform-runtime-gate.md`에 보존한다.
 
-현재 활성 작업은 `work/current.md`만으로 판단한다. 현재 단계는 P1-F Cross-platform Runtime Gate다.
+현재 활성 작업은 `work/current.md`만으로 판단한다. 현재 단계는 P2-A macOS Capture / OCR / Overlay vertical slice다.
 
-P1의 현재 단계:
-- P1-F: Cross-platform Runtime Gate
-
-P1-F는 과거의 "mobile feasibility"가 아니라 macOS / Windows / Android / iOS 공통 runtime contract와 porting feasibility를 검증하는 단계다.
+P2는 macOS에서 실제 사용자 흐름을 먼저 검증하되, P1-F에서 확정한 Rust shared core와 portable contract를 유지한다. macOS host code는 screen capture, OCR, overlay/window, permission/lifecycle을 소유하고 semantic core 규칙을 재구현하지 않는다.
 
 ## 문서 경계
 

@@ -24,15 +24,15 @@
 - Tiny Neural Realizer 경계
 - cross-platform public contract
 
-### Out of scope for current P1-F
-- full production UI/app implementation
-- OCR
-- screen capture
-- visual overlay UI
-- full native MARCO reimplementation unless direct gate evidence proves it is required
-- Tiny Realizer model selection/training beyond the completed P1-E evidence
+### Out of scope for current P2-A
+- continuous/background real-time capture loop
+- Windows/Android/iOS product UI implementation
+- full native MARCO semantic-engine rewrite
+- new Tiny Realizer selection/training
 - cloud translation runtime
-- release/signing/store submission
+- account/sync/telemetry backend
+- production signing/notarization/store release
+- automatic persistence of raw screenshots or OCR text
 
 ## Functional Requirements
 
@@ -63,6 +63,17 @@
 | FR-023 | runtime persistent semantics는 플랫폼 간 보존되어야 한다. | H | TM/User Overlay/Session 또는 승인된 interchange representation이 Python reference fixture와 round-trip 의미 parity를 가진다. | persistence interop tests |
 | FR-024 | platform-specific capture/OCR/UI/permission/lifecycle 코드는 semantic core에 직접 결합되지 않아야 한다. | H | platform smoke host가 thin adapter로 core를 호출하고 core contract에 host UI 타입이 없다. | architecture + host smoke review |
 | FR-025 | macOS/Windows/Android/iOS에서 동일한 core conformance version과 fixture identity를 검증할 수 있어야 한다. | H | 네 플랫폼 evidence가 동일 contract/fixture hash를 보고한다. | CI/direct target reports |
+| FR-026 | macOS 사용자는 명시적 동작으로 화면/윈도우/영역 캡처를 시작할 수 있어야 한다. | H | user-triggered capture가 선택된 source의 frame을 반환하고 취소가 가능하다. | direct-host acceptance |
+| FR-027 | macOS capture flow는 필요한 screen-recording 권한 상태를 감지하고 denied/restricted/granted를 안전하게 처리해야 한다. | H | 권한 미허용에서 crash/무한 재시도 없이 안내하고, 허용 후 capture가 정상 동작한다. | permission-path host test |
+| FR-028 | OCR은 캡처된 frame을 local-only로 처리하고 source text 및 bounding information을 translation stage에 전달해야 한다. | H | controlled Chinese fixtures에서 normalized OCR text와 geometry가 oracle에 맞고 network access가 없다. | OCR fixture + offline host test |
+| FR-029 | macOS host는 OCR text를 기존 translation backend contract로 전달하고 semantic rule을 UI/capture layer에서 재구현하지 않아야 한다. | H | supported fixture가 canonical translation result를 반환하고 host code에 별도 domain translation rule이 없다. | end-to-end + architecture review |
+| FR-030 | 번역 결과는 source app을 수정하지 않는 transient overlay로 표시되고 사용자가 즉시 닫을 수 있어야 한다. | H | overlay가 실제 화면에 표시되고 dismiss/cancel 후 잔존 state가 없다. | direct-host UI test |
+| FR-031 | overlay와 app-owned UI는 capture→OCR 입력으로 재유입되어 feedback loop를 만들지 않아야 한다. | H | repeated capture에서 own overlay text가 OCR/translation input으로 재수집되지 않는다. | cycle-guard acceptance test |
+| FR-032 | raw screenshot과 OCR source text는 기본 설정에서 디스크에 영구 저장되지 않아야 한다. | H | normal flow 후 app data/temp inventory에 capture artifact가 남지 않는다. | privacy/file-system test |
+| FR-033 | capture/OCR/translation/overlay pipeline은 network 없이 동작해야 한다. | H | outbound network denied 상태에서 controlled end-to-end flow가 완료된다. | direct offline host test |
+| FR-034 | capture request는 취소 가능하고 새 요청이 이전 요청의 stale OCR/translation 결과를 overlay에 표시하지 않아야 한다. | H | cancel/restart/re-entry 테스트에서 latest-request state만 commit된다. | state/temporal host test |
+| FR-035 | P2-A는 capture→OCR→translation→overlay 단계별 latency를 같은 controlled workload로 측정해야 한다. | M | stage timing과 end-to-end p50/p90이 기록된다. | performance report |
+| FR-036 | macOS app boundary는 P1-F Rust runtime/portable contract와 호환되고 platform code가 core contract에 UI 타입을 추가하지 않아야 한다. | H | host adapter가 versioned C ABI/portable contract를 사용하고 P1-F conformance regression이 유지된다. | integration + P1-F regression |
 
 ## Quality Attributes
 
@@ -82,6 +93,10 @@
 | QA-012 | FFI/API safety | host가 invalid payload/error를 전달 | crash/UB 대신 versioned error contract로 실패 | unhandled boundary crash 0 in conformance suite |
 | QA-013 | Runtime independence | product runtime process 시작 | Python/MARCO internal module 없이 portable slice 실행 | Python runtime dependency 0 for selected slice |
 | QA-014 | Resource observability | target smoke workload 실행 | binary/startup/latency/memory 또는 측정 가능한 subset 기록 | 임의 product threshold 없이 platform별 measured evidence 기록 |
+| QA-015 | Capture privacy | 사용자가 화면 번역을 실행 | capture frame/OCR text는 처리 중 memory에만 유지되고 명시적 export 없이는 persisted/logged되지 않음 | default persistent raw capture artifact 0 |
+| QA-016 | Permission resilience | screen-recording permission 미허용/변경 | app이 안전한 상태로 남고 복구 경로 제공 | crash 0, stale overlay 0 |
+| QA-017 | Interaction safety | overlay 표시 중 사용자가 원래 앱과 상호작용 | overlay lifecycle이 source content를 변경하지 않고 닫기/취소 가능 | trapped input/focus loop 0 in acceptance flow |
+| QA-018 | Pipeline observability | controlled capture workload 반복 | stage/end-to-end latency를 같은 조건으로 기록 | measured p50/p90; product threshold는 P2-A evidence 전 미정 |
 
 ## Constraints
 

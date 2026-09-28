@@ -183,3 +183,27 @@ Required evidence:
 - P1-A–P1-E full Python regression and actual MARCO integration remain green
 
 Architecture selection itself requires a recorded comparison and capability evidence. A compile-only target cannot satisfy a runtime acceptance criterion. A blocked emulator/simulator/runtime check leaves P1-F incomplete rather than silently narrowing the gate.
+
+
+## P2-A macOS capture/OCR/overlay validation
+
+P2-A는 batch/CI만으로 완료하지 않는다. 실제 macOS host에서 권한, capture, OCR, translation handoff, overlay lifecycle을 직접 검증한다.
+
+Required evidence:
+
+- screen-recording permission denied/restricted/granted paths
+- explicit one-shot capture start, cancel, and source selection flow
+- controlled Chinese text fixture capture from an actual on-screen surface
+- OCR normalized text and geometry oracle
+- actual translation-backend handoff for supported regression phrases
+- unresolved/unsupported text remains visibly unresolved or safely omitted according to the chosen UI contract; no invented translation
+- overlay creation, display, dismissal, and source-app non-mutation
+- own-app/overlay exclusion or equivalent cycle guard proven over repeated captures
+- request cancellation/re-entry: stale OCR/translation completion cannot overwrite the latest request
+- no default persisted screenshot/OCR artifact after normal flow
+- outbound-network-denied end-to-end execution
+- stage timing for capture, OCR, translation, overlay and end-to-end p50/p90 on one frozen workload
+- P1-F portable runtime conformance remains green
+- P1-A–P1-E Python/MARCO regression remains green when the P2 host integration touches shared contracts
+
+Permission and GUI evidence must be reported separately from unit/component/CI evidence. A command-line OCR test is not a substitute for screen permission + real host capture. If host permissions require manual user action, trigger the normal OS flow but do not modify TCC databases or automate System Settings.

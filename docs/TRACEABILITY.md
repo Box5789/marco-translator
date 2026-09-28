@@ -57,3 +57,19 @@
 | QA-010, QA-012 | store and FFI fail-closed contracts | Rust schema/status/input/output validation; Python store migration/rejection | incompatible/unknown SQLite version, invalid UTF-8/JSON/version/fields, input/output caps, invalid status, close/reopen cases |
 
 P1-F closeout (2026-09-28): all rows above have direct implementation/test evidence. Workflow run `36381612145` completed all five jobs successfully. macOS, Windows, Android API 35 emulator, and iOS Simulator 26.4.1 each reported `marco-runtime.v1`, seven fixtures, and SHA-256 `b099cfc595104ee80edbf5adc0b247587c9fcf1955a5f04e53a435e5748e845b`. Detailed target reports and limits: `work/current.md` Final closeout.
+
+
+## P2-A planned traceability
+
+| Requirement / Use Case | Analysis / Design element | Planned surface | Required evidence |
+|---|---|---|---|
+| FR-026, FR-027 | macOS capture/permission adapter | macOS host capture boundary, exact API chosen after capability probe | direct permission and one-shot capture host test |
+| FR-028, QA-015 | local OCR + privacy boundary | OCR adapter with in-memory frame/text lifecycle | controlled fixture OCR, offline run, no-persistence check |
+| FR-029, FR-036 | translation backend adapter | host→portable/runtime/backend boundary; no host semantic rules | known phrase end-to-end + architecture review + P1-F regression |
+| FR-030, QA-017 | transient overlay lifecycle | macOS overlay/window adapter | direct display/dismiss/source-app non-mutation |
+| FR-031 | self-capture cycle guard | capture filter/exclusion or equivalent guard selected by evidence | repeated capture does not OCR own overlay |
+| FR-032, FR-033 | privacy/offline policy | app defaults and diagnostics boundary | filesystem inventory + outbound-network-denied E2E |
+| FR-034 | request state machine | latest-request/cancel semantics | delayed completion/re-entry test |
+| FR-035, QA-018 | pipeline measurement | benchmark instrumentation only, not product telemetry | frozen workload stage and p50/p90 report |
+
+This section is planned traceability. Replace planned surfaces with actual files/types after the P2-A design gate; do not treat names above as implementation commitments.
