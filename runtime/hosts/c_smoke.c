@@ -6,7 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#define MAX_INPUT (1024u * 1024u)
+#define P1F_MAX_INPUT_BYTES (1024u * 1024u)
 
 static int fail(const char *message, const char *case_id) {
     fprintf(stderr, "FAIL %s%s%s\n", message, case_id ? ": " : "", case_id ? case_id : "");
@@ -40,10 +40,10 @@ static int check_boundaries(MarcoRuntime *runtime) {
     if (marco_runtime_process_json(runtime, unsupported, sizeof(unsupported) - 1, &output) != MARCO_RUNTIME_UNSUPPORTED_CONTRACT || output != NULL) return fail("unsupported contract was accepted", NULL);
     const uint8_t unknown_field[] = "{\"contract_version\":\"marco-runtime.v1\",\"operation\":\"translate\",\"request\":{\"text\":\"x\",\"source_language\":\"zh\",\"target_language\":\"ko\",\"domain\":null,\"style\":\"neutral\",\"session_id\":null,\"unexpected\":true}}";
     if (marco_runtime_process_json(runtime, unknown_field, sizeof(unknown_field) - 1, &output) != MARCO_RUNTIME_INVALID_REQUEST || output != NULL) return fail("unknown request field was accepted", NULL);
-    uint8_t *oversized = (uint8_t *)malloc(MAX_INPUT + 1);
+    uint8_t *oversized = (uint8_t *)malloc(P1F_MAX_INPUT_BYTES + 1);
     if (!oversized) return fail("allocation failed", NULL);
-    memset(oversized, ' ', MAX_INPUT + 1);
-    MarcoRuntimeStatus oversized_status = marco_runtime_process_json(runtime, oversized, MAX_INPUT + 1, &output);
+    memset(oversized, ' ', P1F_MAX_INPUT_BYTES + 1);
+    MarcoRuntimeStatus oversized_status = marco_runtime_process_json(runtime, oversized, P1F_MAX_INPUT_BYTES + 1, &output);
     free(oversized);
     if (oversized_status != MARCO_RUNTIME_INPUT_TOO_LARGE || output != NULL) return fail("oversized input was accepted", NULL);
 
