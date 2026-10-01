@@ -207,3 +207,10 @@ Required evidence:
 - P1-A–P1-E Python/MARCO regression remains green when the P2 host integration touches shared contracts
 
 Permission and GUI evidence must be reported separately from unit/component/CI evidence. A command-line OCR test is not a substitute for screen permission + real host capture. If host permissions require manual user action, trigger the normal OS flow but do not modify TCC databases or automate System Settings.
+
+### P2-A implementation checks
+
+- `macos/test-host.sh` compiles the same OCR/runtime sources as the app for macOS 14.0 and runs controlled OCR text/geometry, crop, known/unknown P1-F translation, and delayed cancel/re-entry checks.
+- `macos/build-app.sh` builds and locally verifies an ad-hoc signed `.app`; it does not create a distribution signature. Direct permission and GUI findings are recorded separately from this executable check.
+- The in-app timing row keeps capture, OCR, translation, overlay, and processing samples in memory and reports nearest-rank p50/p90 (`ceil(q*n)`). Processing excludes user time spent in the picker and region drag. Do not infer product thresholds from a small fixture workload.
+- The current bridge uses the P1-F seven-case Rust fixture resolver. The pinned Python/MARCO integration is a separate regression; passing it does not imply the native app embeds the Python semantic engine.

@@ -363,3 +363,34 @@ Consequences:
 - Python is the reference oracle. P1-F portable conformance is pinned to the observed Python 3.14.7 / UCD 16.0.0 reference environment.
 - Model acceleration strategy and final latency, RAM, and binary-size budgets remain open for evidence in a later phase.
 - P1-F is complete; the measured library/app sizes and startup/smoke times are baseline observations and do not establish product budgets. A full native semantic engine or model runtime was not selected.
+
+## 13. ADR-008 — P2-A macOS capture, OCR, and overlay host
+
+Status: Capture/OCR/host and translation-boundary selections are evidence-backed; direct capture with a granted Screen Recording permission remains part of P2-A acceptance.
+
+Context and evidence:
+- The host is macOS 26.6.2 (arm64, 32 GiB) with Xcode 27.0 / macOS SDK 27.0. The app and host checks compile with a macOS 14.0 deployment target.
+- Local SDK probes type-checked `SCContentSharingPicker` in `.singleWindow` and `.singleDisplay` modes, `SCScreenshotManager.captureImage(contentFilter:configuration:)`, `SCShareableContent.info(for:)`, and `VNRecognizeTextRequest` revision 3. Runtime Vision capability returned `zh-Hans`; a controlled bitmap OCR produced the exact phrase `西边有狙` and a normalized bounding box that met the pixel oracle. `macos/test-host.sh` also verified OCR after a user-region crop.
+- The built app links only Apple frameworks plus the Rust runtime linked from the existing P1-F library. No capture, OCR, or UI package was added. Local framework references: [ScreenCaptureKit picker](https://developer.apple.com/documentation/screencapturekit/sccontentsharingpicker), [single-frame capture](https://developer.apple.com/documentation/screencapturekit/scscreenshotmanager/captureimage%28contentfilter%3Aconfiguration%3Acompletionhandler%3A%29?language=objc), and [Vision text recognition](https://developer.apple.com/documentation/vision/vnrecognizetextrequest?changes=_3&language=objc).
+- The normal permission probe observed the denied state: preflight/request returned false and the native app displayed a retry/settings instruction without crashing. Grant-path capture still requires the user's manual Screen Recording grant and will be recorded in the P2-A host record.
+
+Decision:
+- Use `SCContentSharingPicker` for an explicit selection of one window or display, then `SCScreenshotManager.captureImage` for one in-memory frame. The picker configuration excludes the app bundle. A captured window/display is previewed locally; the user draws a region in the preview because the picker does not offer a region mode. No continuous stream is opened.
+- Use Vision revision 3 in accurate mode for `zh-Hans`. OCR text and Vision-normalized bounding boxes remain request-local. The preview maps the user selection from top-left normalized coordinates into source pixels; Vision reports each text line in its normalized bottom-left coordinate system.
+- Use AppKit for the host window and a separate non-activating `NSPanel` for the transient overlay. The main window and overlay use `.sharingType = .none`; the overlay is floating, dismissible, and excluded from the next picker session.
+- Reuse the P1-F `marco-runtime.v1` C ABI through `runtime/include/marco_runtime.h`. It opens `:memory:` and adds no translation rules. The Rust resolver is a deterministic seven-case fixture resolver, so this bridge proves the existing contract and its grounded fixtures; it does not claim the full Python/MARCO semantic engine runs inside the native app. The actual MARCO engine remains covered by the separate Python regression. A Python/MARCO app dependency is excluded by FR-021 and the P2-A scope excluding a full native MARCO rewrite.
+- Keep request ownership in the AppKit delegate. Each new request or cancel increments `RequestGeneration`; picker, capture, and OCR completions must match the active generation before they may update UI. The raw frame is cleared after processing, and OCR strings, translations, and timing samples are not written to disk or sent to a network service.
+
+Alternatives and consequences:
+| Alternative | Decision | Evidence / cost |
+|---|---|---|
+| Third-party capture, OCR, or UI framework | Not selected | Native SDK capabilities satisfy the one-shot local criteria; an additional dependency would add packaging and privacy surface without a demonstrated gap. |
+| Continuous `SCStream` capture | Not selected | The accepted use case is an explicit one-shot request; a stream adds lifecycle and background-capture behavior outside P2-A. |
+| SwiftUI host | Not selected | AppKit directly supplies the tested `NSWindow`/`NSPanel` behavior required by this small macOS-only host. |
+| Python/MARCO inside the app | Not selected for P2-A | It would add Python/MARCO to product execution contrary to FR-021, P1-F, and the P2-A scope. Python/MARCO remains the reference and separate integration oracle. |
+
+Consequences and limits:
+- The minimum host version is macOS 14.0, based on the selected picker and single-frame capture APIs. Current OCR support is simplified Chinese only; language expansion needs its own fixtures and direct accuracy evidence.
+- The Rust host bridge intentionally recognizes only its frozen fixture set. Unknown text remains unresolved and is never replaced with a guessed translation. This is a vertical-slice boundary, not a claim of full semantic product readiness.
+- Actual Screen Recording grant/revoke remains a user/OS action. A restricted or managed-device state is reported through the same no-access guidance; this Mac did not exercise an MDM-restricted profile.
+- Placement is a transient panel at the main screen's visible-frame corner. The source app is not modified. Multi-display placement refinement, continuous capture, resource budgets, and distribution signing/notarization remain outside P2-A.

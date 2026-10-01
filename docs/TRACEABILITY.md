@@ -59,17 +59,17 @@
 P1-F closeout (2026-09-28): all rows above have direct implementation/test evidence. Workflow run `36381612145` completed all five jobs successfully. macOS, Windows, Android API 35 emulator, and iOS Simulator 26.4.1 each reported `marco-runtime.v1`, seven fixtures, and SHA-256 `b099cfc595104ee80edbf5adc0b247587c9fcf1955a5f04e53a435e5748e845b`. Detailed target reports and limits: `work/current.md` Final closeout.
 
 
-## P2-A planned traceability
+## P2-A macOS host traceability
 
-| Requirement / Use Case | Analysis / Design element | Planned surface | Required evidence |
+| Requirement / Use Case | Analysis / Design element | Implementation surface | Evidence / remaining direct-host status |
 |---|---|---|---|
-| FR-026, FR-027 | macOS capture/permission adapter | macOS host capture boundary, exact API chosen after capability probe | direct permission and one-shot capture host test |
-| FR-028, QA-015 | local OCR + privacy boundary | OCR adapter with in-memory frame/text lifecycle | controlled fixture OCR, offline run, no-persistence check |
-| FR-029, FR-036 | translation backend adapter | host→portable/runtime/backend boundary; no host semantic rules | known phrase end-to-end + architecture review + P1-F regression |
-| FR-030, QA-017 | transient overlay lifecycle | macOS overlay/window adapter | direct display/dismiss/source-app non-mutation |
-| FR-031 | self-capture cycle guard | capture filter/exclusion or equivalent guard selected by evidence | repeated capture does not OCR own overlay |
-| FR-032, FR-033 | privacy/offline policy | app defaults and diagnostics boundary | filesystem inventory + outbound-network-denied E2E |
-| FR-034 | request state machine | latest-request/cancel semantics | delayed completion/re-entry test |
-| FR-035, QA-018 | pipeline measurement | benchmark instrumentation only, not product telemetry | frozen workload stage and p50/p90 report |
+| FR-026, FR-027 | Explicit source selection, one-shot permission guard, post-capture region crop | `macos/Sources/MarcoCaptureApp.swift`, `macos/Sources/RegionCropView.swift`, ADR-008 | App launch/action and denied guidance observed on Mac; granted capture remains pending manual Screen Recording permission. |
+| FR-028, QA-015 | Local simplified Chinese OCR and normalized line geometry | `macos/Sources/CaptureCore.swift`, `macos/Tests/HostChecks.swift` | Exact bitmap oracle and crop OCR pass; actual on-screen fixture awaits permission. |
+| FR-029, FR-036 | Existing versioned translation boundary; no host semantic rule | `PortableRuntime` in `macos/Sources/CaptureCore.swift`, `runtime/include/marco_runtime.h` | App uses the P1-F seven-case fixture; component checks pass and Python/MARCO regression is separate. Direct GUI E2E awaits Screen Recording access. |
+| FR-030, QA-017 | Dismissible, non-activating transient result surface | `TranslationOverlay` in `macos/Sources/MarcoCaptureApp.swift` | Build and AppKit capability checks pass; actual display/dismiss awaits granted capture. |
+| FR-031 | Exclude host from picker and screen-sharing output | `installPickerConfiguration`, `window.sharingType`, `TranslationOverlay.panel.sharingType` | Configuration/build checks pass; repeated real capture cycle awaits granted capture. |
+| FR-032, FR-033 | Ephemeral frame/text/timing; offline host | `AppDelegate` request lifecycle and `PortableRuntime(databasePath: ":memory:")` | Source/runtime audit passes; app-specific inventory and network-denied successful E2E await granted capture. |
+| FR-034 | Generation guard for cancellation and re-entry | `RequestGeneration` in `macos/Sources/CaptureCore.swift` | Delayed stale-completion assertion passes; direct capture UI re-entry remains pending. |
+| FR-035, QA-018 | In-memory stage samples and nearest-rank p50/p90 | `recordTiming`, `updateTimingLabel`, `percentile` in `macos/Sources/MarcoCaptureApp.swift` | Instrumentation builds; real controlled workload report awaits granted capture. |
 
-This section is planned traceability. Replace planned surfaces with actual files/types after the P2-A design gate; do not treat names above as implementation commitments.
+P2-A remains active until the direct-host evidence above is complete. Component checks and Python/MARCO regression are not substitutes for those permission-dependent rows.

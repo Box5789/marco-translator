@@ -1,6 +1,6 @@
 # Current Task — P2-A macOS Capture / OCR / Overlay
 
-Status: Active — capability/requirements evidence phase  
+Status: Blocked — normal Screen Recording app addition did not register the host; the likely signing-identity issue is unconfirmed; AC-A2 closeout-baseline adjustment also awaits the user's decision
 Branch: `p2/macos-capture-ocr-overlay`  
 Parent baseline: `p1/cross-platform-runtime-gate@21f7ed967e38fa56ea484c54a3e3e8db1652987a`
 
@@ -17,7 +17,7 @@ P1-F의 전체 Engineering Record는 `work/p1-f-cross-platform-runtime-gate.md`�
 ## Current stage
 
 - P1-A~P1-F: Complete
-- P2-A: Active — capability/requirements evidence
+- P2-A: Blocked — direct macOS host validation awaits a usable Screen Recording grant path and the AC-A2 decision
 - Later P2 stages: Not started
 
 ## Accepted constraints
@@ -157,37 +157,112 @@ Screen Recording 권한이 필요한 경우 정상 macOS permission flow를 trig
 - code signing/notarization/App Store release
 - P1-D/P1-F contract redesign unless a P2-A acceptance criterion proves a blocking incompatibility
 
+## Use case and operation contract
+
+Actor: local macOS user translating one visible Chinese message. The user initiates every capture from the app; no hotkey, background observer, or continuous stream is active.
+
+Successful path:
+
+    Idle → PermissionCheck → SourceSelection → Capturing → Captured → OCR → Translation → Overlay → Idle
+
+- Source selection is one window or one display in the ScreenCaptureKit picker. The user then drags a region over the in-memory preview; the crop is converted from top-left normalized view coordinates to source pixels. Crops smaller than 2×2 pixels are rejected.
+- Permission check calls CGPreflightScreenCaptureAccess; the normal OS request is attempted only after the explicit capture action. A false request/preflight result returns to Idle with recovery guidance. A capture error rechecks access and maps no access to the same guidance; an MDM-restricted state is not distinguishable from denied through this Boolean API.
+- The request owner is AppDelegate. RequestGeneration.begin() runs for each start and cancel() invalidates the active generation. Picker, capture, and OCR completions must match the generation before updating visible state. Picker cancel, user cancel, and re-entry invalidate older work; stale completion is ignored.
+- The frame remains in memory from capture through the user's crop and OCR handoff. OCR text is sent as a marco-runtime.v1 request with zh → ko, gaming, neutral, and no session ID. The runtime opens :memory:. After translation, the frame, region, and OCR document are released; the transient overlay owns only the display string until dismissal.
+- Error mapping: denied/restricted access → permission guidance; picker cancellation → canceled status; screenshot failure with permission → capture error; OCR failure/empty text → user-facing error; unavailable or malformed runtime → runtime error; unresolved translation → explicit no-confirmed-translation message, never a guess; stale callback → ignored.
+- The app and overlay windows set sharingType = .none; the picker excludes the app bundle. The overlay is a separate non-activating NSPanel at the main display's visible-frame corner. No source-app input or content is modified.
+- Screenshot bytes, OCR text, translation requests, and timing samples are not persisted or logged. The runtime database is in-memory. The app has no network client; successful network-denied GUI flow and post-flow inventory still require the granted-permission run.
+
 ## Acceptance criteria
 
-| ID | Criterion | Direct evidence | Status |
+| ID | Criterion | Evidence | Status |
 |---|---|---|---|
-| AC-A1 | capture/OCR/overlay/runtime capability와 relevant SDK behavior가 direct probe로 확인되고 ADR에 반영된다 | capability record | Pending |
-| AC-A2 | permission/state/cancel/re-entry/privacy contract가 구현 전 명확히 기록된다 | operation/state contract | Pending |
-| AC-A3 | native macOS app이 실제로 launch되고 capture action을 제공한다 | direct host launch/input | Pending |
-| AC-A4 | denied/restricted permission에서 crash 없이 복구 안내/상태를 제공한다 | direct permission path | Pending |
-| AC-A5 | granted permission에서 actual on-screen controlled fixture를 capture한다 | captured-frame identity/visual check | Pending |
-| AC-A6 | local OCR이 frozen Chinese fixture의 normalized text와 geometry oracle을 만족한다 | OCR fixture report | Pending |
-| AC-A7 | OCR text가 existing translation backend contract를 통해 canonical supported translation으로 처리된다 | controlled end-to-end result | Pending |
-| AC-A8 | unsupported/unresolved input이 guessed translation으로 표시되지 않는다 | unknown end-to-end case | Pending |
-| AC-A9 | translation result가 transient overlay에 표시되고 dismiss/cancel 후 사라진다 | direct host overlay test | Pending |
-| AC-A10 | app/overlay가 다음 capture→OCR input으로 재유입되지 않는다 | repeated capture cycle-guard test | Pending |
-| AC-A11 | cancelled/older async request의 stale result가 최신 overlay state를 덮지 않는다 | delayed completion/re-entry test | Pending |
-| AC-A12 | normal flow 후 raw capture/OCR artifact가 disk에 남지 않고 outbound network 없이 E2E가 동작한다 | filesystem inventory + network-denied run | Pending |
-| AC-A13 | frozen workload의 capture/OCR/translation/overlay stage timing과 E2E p50/p90이 기록된다 | direct Mac performance report | Pending |
-| AC-A14 | P1-F portable conformance와 applicable Python/MARCO regression이 유지된다 | regression workflows/tests | Pending |
-| AC-A15 | P2-A architecture, limitations, residual risks와 다음 P2 start condition이 Engineering Record에 정리된다 | final record | Pending |
+| AC-A1 | Capture/OCR/overlay/runtime capability and SDK behavior probed and recorded | SDK/API probes; ADR-008; macOS 14 build | Verified |
+| AC-A2 | Permission/state/cancel/re-entry/privacy contract recorded before implementation | Contract recorded and code checked against it; it was not persisted before the first vertical-slice source edit, so the timing criterion is a process deviation | Partial |
+| AC-A3 | Native macOS app launches and provides capture action | Direct app launch, AX capture/cancel/settings controls, and app-provided link to the Screen & System Audio Recording pane | Verified |
+| AC-A4 | Denied/restricted permission fails safely with recovery guidance | On 2026-10-01, explicit capture action returned permission guidance without crash; Cancel reported that the request was canceled and a subsequent selection safely returned to the permission guidance. MDM restriction is unavailable on this host. | Partially verified |
+| AC-A5 | Granted permission captures an actual controlled on-screen fixture | User requested adding the exact running app through System Settings. Two normal app-picker selections returned to the pane without adding an entry; the list stayed at 8 apps and the app still reports no access. | Blocked |
+| AC-A6 | Local OCR matches frozen text and geometry oracle | Direct Vision fixture 西边有狙; top-left pixel bbox 99.8,95.1,324.4,81.8; region crop 648×230 | Component verified; capture pending |
+| AC-A7 | OCR text reaches the existing translation contract and returns canonical supported output | P1-F C ABI known phrase check passes; bridge selected from FR-021/P1-F constraints; UI E2E awaits grant | Pending |
+| AC-A8 | Unknown input is not displayed as guessed translation | C ABI unknown case returns unresolved and empty text; on-screen unknown fixture prepared | Component verified; capture pending |
+| AC-A9 | Translation is shown in transient overlay and dismiss/cancel clears it | AppKit panel compiles; actual display depends on granted capture | Pending |
+| AC-A10 | App/overlay is excluded from the next capture | Picker bundle exclusion and sharingType = .none compile; repeated real capture awaits grant | Pending |
+| AC-A11 | Cancelled/older completion cannot overwrite a newer request | Delayed completion/re-entry assertion passes in macos/test-host.sh | Verified |
+| AC-A12 | Normal flow leaves no raw capture/OCR artifact and succeeds with outbound networking denied | Python/MARCO and P1-F C host pass network-denied; app-specific post-flow inventory/successful GUI E2E awaits grant | Pending |
+| AC-A13 | Frozen workload stage timings and E2E p50/p90 recorded | In-app nearest-rank instrumentation builds; actual values await granted capture | Pending |
+| AC-A14 | P1-F portable conformance and applicable Python/MARCO regression stay green | Rust: 8 tests; network-denied C host: 7 fixtures, same hash; pinned Python/MARCO regression: 66 passed, 0 skipped | Verified |
+| AC-A15 | Architecture, limits, risks, and next start condition recorded | ADR-008 and this task record document choices, limits, risks, and the next start condition | Verified |
+
+Additional validation: Xcode 27.0 / macOS SDK 27.0, Swift 6.4, Rust 1.98.1, macOS 26.6.2 arm64 / 32 GiB. cargo fmt --all -- --check, locked offline Rust tests/build, macos/test-host.sh, .app build/code-sign verification, plist lint, and git diff --check passed. Pinned Python/MARCO checkout was ffedc8b8552505e515b8f5ea2ae7f9934d7ef58e; pack SHA-256 was 3f38aa5f1237170dbb5cf5a9cdbe19ab3d309c973b2d581bdc6f28463adeb627.
+
+2026-09-30 repeat validation: `cargo +1.98.1 fmt --check`, locked offline Rust tests (8 passed), release build, `macos/test-host.sh` under `sandbox-exec` network denial, and strict C-host run (7 fixtures; SHA-256 `b099cfc595104ee80edbf5adc0b247587c9fcf1955a5f04e53a435e5748e845b`) passed. Pinned Python/MARCO suite passed all 66 tests with 0 skips under network denial. An initial run without `MCO_MARCO_ROOT` and `MARCO_TRANSLATOR_MCO` skipped 14 MARCO-dependent tests; that run is not acceptance evidence and was replaced by the complete pinned run. The first Xcode 27 `swiftc` invocation lacked `SDKROOT` and reported `unable to load standard library`; setting the already-installed Xcode 27 SDK path fixed the host configuration, and the same host checks and app build passed. Final app executable SHA-256: `258f4e471cc7dc2812b7876a3e619717f9de06a580ec5989163781c72c071549`.
+
+2026-10-01 direct UI refresh: CUA access succeeded with the Mac unlocked. The running P2 app exposes capture/cancel/settings controls and, after explicit capture action, shows `화면 기록 권한이 필요합니다. 권한을 허용한 뒤 앱에서 다시 시도하세요.` The source calls `CGPreflightScreenCaptureAccess` then `CGRequestScreenCaptureAccess`; this run still returned to the denial guidance. Cancel reported `현재 요청을 취소했습니다. 원본 화면은 변경되지 않았습니다.` A new selection returned safely to permission guidance. Both controlled fixture windows expose the exact AX text `西边有狙` and `完全未知的新句子`. The app-provided settings button opened macOS's Screen & System Audio Recording pane. At the user's request, the exact running app bundle was selected twice through the normal Add/Open UI after the user authenticated Settings; each picker closed, but the allowed-app list remained at 8 entries and still omitted Marco Translator P2. The app continues to report no access. No TCC database was modified and no permission grant took effect.
+
+## Engineering Record — P2-A
+
+### Authority and baseline
+
+- Authority: the user authorized full-scope P2-A implementation and direct macOS validation on `p2/macos-capture-ocr-overlay`. After the grant path failed, the user explicitly directed a checkpoint commit/push of the current blocked implementation. This authorizes branch publication without waiving AC-A2 or the P2-A stop condition. The project-local/`/tmp` validation boundary is pre-authorized. The user also explicitly authorized adding this app through normal System Settings UI; the app picker did not change the effective permission list. Direct TCC database mutation remains excluded.
+- Continuation baseline: repository `Box5789/marco-translator`; local branch and `origin/p2/macos-capture-ocr-overlay` both pointed to `4d6a37754d5638787377053c60c35199dff67f1b`. At recovery, the 16 intended implementation/document files were already staged. Generated `graphify-out/` was untracked and preserved unstaged.
+- Exact outcome and stop condition: use the Goal, Use case and operation contract, AC-A1–AC-A15, and Stop condition above. No later P2 phase is authorized.
+
+### Documentation and evidence preflight
+
+| Candidate | Status | Relevance |
+|---|---|---|
+| `AGENTS.md`, `AGENT_GUIDE.md`, `work/current.md` | Read | workflow authority, durable product rules, active scope |
+| `AGENT_HANDOFF.md`, `docs/AGENT_HANDOFF.md` | Absent | no handoff exists in this checkout |
+| `work/p1-f-cross-platform-runtime-gate.md` | Read | carry-forward Rust C ABI contract and P1-F evidence |
+| `work/p1-d-knowledge-maintenance.md`, `work/p1-e-tiny-realizer-benchmark.md` | Not applicable | completed phases; no P1-D/E behavior changes |
+| `README.md`, `docs/REQUIREMENTS.md`, `docs/ENGINEERING_BASELINE.md`, `docs/PLATFORM_STRATEGY.md`, `docs/TEST_STRATEGY.md`, `docs/TRACEABILITY.md`, `docs/P2.md` | Read | product scope, FR/QA, ADR, platform and validation authority |
+| `docs/ARCHITECTURE.md`, `docs/AUTOMATIC_LEARNING.md`, `docs/MARCO_PROTOCOL.md` | Read | semantic authority, state ownership, MARCO boundary |
+| `docs/P1.md` | Not applicable | P1 is closed; this change updates P2 records only |
+| `runtime/include/marco_runtime.h`, `schemas/marco-runtime-v1.schema.json`, `runtime/fixtures/conformance-v1.json`, P1-F conformance/persistence tests | Read | existing public contract and regression evidence |
+| P2-A Swift sources, host checks, build/test scripts, plist | Read | every staged implementation file was inspected in full |
+| `graphify-out/graph.json` | Read, inline BFS | 47 navigation nodes; canonical docs and source/tests remain authoritative |
+| `graphify-out/wiki/index.md`, `graphify-out/reflections/LESSONS.md` | Absent | no generated wiki index or lessons file |
+| External standards certification | Not applicable | no certification claim is made |
+| Skill-maintenance validation | Not applicable | the engineering skill itself is unchanged |
+
+### Design and object responsibilities
+
+- ADR-008 records capability probes and alternatives. Native `SCContentSharingPicker`/`SCScreenshotManager`, Vision `zh-Hans`, and AppKit were selected after local SDK/build probes. The host reuses P1-F Rust C ABI because FR-021 excludes Python/MARCO runtime dependency and P2-A excludes a full native MARCO rewrite. No dependency was added.
+- `AppDelegate` is the request coordinator/service: it owns the current generation and transient frame/selection/UI state; only matching callbacks may update the UI. `RequestGeneration` is a stateful guard whose contract is that only the newest generation is accepted; `HostChecks` exercises cancel and stale completion.
+- `PortableRuntime` is a composition adapter that owns the opaque C ABI handle, serializes `marco-runtime.v1`, validates the response envelope, and closes the handle. Its database defaults to `:memory:`; fixture tests cover known and unresolved input.
+- `RegionCropView` owns only transient selection geometry and maps view coordinates to a normalized crop. Its crop/OCR bounds are component-tested. `TranslationOverlay` owns only a transient display string and close callback; direct display/dismissal remains unverified while the host is locked.
+- No new interface or inheritance hierarchy was added. Framework protocol inheritance is required by AppKit/ScreenCaptureKit; composition connects the adapters. UML is not needed for this small host boundary.
+
+### Scope coverage
+
+| Surface | Status | Evidence or limit |
+|---|---|---|
+| Requirements, platform, test, traceability, P2, ADR/task records | Changed | staged canonical updates; AC map retained above |
+| macOS capture/OCR/translation/overlay host and local build | Changed | build/sign and component checks pass; granted GUI flow pending |
+| P1-F Rust runtime contract and fixtures | Already compliant; reused | no shared runtime source change; 8 Rust tests and 7-case C ABI smoke pass |
+| Python/MARCO reference | Already compliant; regression rerun | pinned checkout/pack; 66 pass, 0 skip, network denied |
+| Other platform UI, continuous capture, production distribution | Explicitly excluded | outside P2-A scope |
+| Granted capture, on-screen fixture, overlay lifecycle/cycle, app inventory, GUI offline flow, latency | Blocked | app remains absent after normal Settings Add/Open; ad hoc signature and no installed signing identity are recorded below |
+| `graphify-out/` | Generated navigation artifact; preserved | untracked and excluded from staged paths |
+
+### Validation and release state
+
+- Component/build: Rust formatting/tests/release build, Swift host OCR/crop/known/unknown/stale-generation check, strict 7-fixture C ABI host, app code-sign verification, plist lint, and `git diff --check` passed. Component OCR oracle: `西边有狙`, top-left pixel bounds `99.8,95.1,324.4,81.8`, crop `648×230`.
+- Regression/offline: Pinned actual MARCO checkout `ffedc8b8552505e515b8f5ea2ae7f9934d7ef58e`, pack SHA-256 `3f38aa5f1237170dbb5cf5a9cdbe19ab3d309c973b2d581bdc6f28463adeb627`; 66 Python tests passed with 0 skips under network denial. C host reported `marco-runtime.v1`, 7 fixtures, SHA-256 `b099cfc595104ee80edbf5adc0b247587c9fcf1955a5f04e53a435e5748e845b`, and `network_dependency=none`.
+- Direct host: the Mac was unlocked on 2026-10-01. CUA confirmed denied-permission guidance, cancel and safe re-entry, both controlled fixture windows, and the app-provided link to the Screen & System Audio Recording pane. After user authorization and authentication, two normal Add/Open attempts on the exact running app bundle left the pane's allowed-app list at 8 entries without Marco Translator P2. The app still reports no Screen Recording access. `codesign -dvvv` reports `Signature=adhoc`, no TeamIdentifier, and no internal requirements; `security find-identity -p codesigning -v` reports 0 valid identities. `spctl -a -vv` rejects this development bundle. These facts make unstable ad hoc code identity a plausible explanation, consistent with Apple's ScreenCaptureKit guidance, but do not prove why Settings declined to retain the selected bundle. App Store/developer distribution signing remains out of P2-A scope. Granted capture and its privacy, overlay cycle, offline GUI, and timing checks remain unverified.
+- Process deviation: AC-A2 explicitly requires the contract to precede the first source edit. It was recorded afterward. This historical condition cannot be retroactively validated; AC-A2 remains `Partial` unless the user approves the requested closeout-criterion adjustment. No source rewrite can erase that chronology.
+- Release: a checkpoint commit/push is now explicitly authorized while the task remains blocked. Publication does not waive the direct-host acceptance or AC-A2 gate and is not P2-A closeout. The staged files passed `git diff --cached --check`; generated `graphify-out/` remains unstaged.
+
+Graphify AST update completed: 1,294 nodes / 2,523 edges. It reports seven input/data files with zero nodes and a partial parse warning in runtime/include/marco_runtime.h; this is navigation-only evidence. Existing untracked graphify-out/ was preserved and remains unstaged.
 
 ## Material decisions still open
 
-- exact capture API and source-selection UX
-- exact local OCR engine/configuration
-- AppKit / SwiftUI / hybrid host/window structure
-- overlay placement and interaction details beyond transient/dismissible behavior
-- development translation-backend bridge to the current semantic engine
-- hotkey/input mechanism
-- product latency/CPU/RAM budgets
+- **Screen Recording grant path:** the user authorized normal System Settings app addition and authenticated the pane. Two Add/Open attempts on the running bundle returned without an app-list entry (count stayed 8); the app still reports no access. The app is ad hoc signed, and this Mac has 0 valid code-signing identities. Apple DTS states that ScreenCaptureKit permission identity is tied to code signing ([Apple Developer Forums](https://developer.apple.com/forums/thread/819406)); ad hoc signing is a plausible blocker, not a proven diagnosis. Stable local development signing was explicitly outside the approved P2-A scope; do not create or install a signing identity without user approval.
+- **AC-A2 closeout criterion:** user decision requested. The original temporal criterion remains `Partial`; do not alter the stop condition or claim completion until the user responds.
+- **Product latency/CPU/RAM budgets:** measure the controlled flow first; no threshold is selected in P2-A.
+- **MDM-restricted permission path:** no managed/restricted host policy is available here; current permission APIs collapse this to a no-access result.
 
-이 항목들은 capability/source evidence 전에 선결정하지 않는다. 여러 대안이 acceptance를 충족하면서 user-facing UX trade-off가 남으면 dependent implementation 전에 사용자 정렬을 요청한다.
+Capture, OCR, host/window selection, source-selection interaction, and overlay placement are recorded in ADR-008 from capability evidence. The above remaining decisions are explicitly distinguished from those completed selections.
 
 ## Validation set
 
@@ -221,13 +296,12 @@ P2-A를 종료하려면:
 8. 한국어 commit title/body로 branch commit/push 및 remote ref 확인
 9. continuous capture나 다른 플랫폼 host를 자동으로 시작하지 않음
 
-## Residual risks at task start
+## Residual risks and next step
 
-- exact macOS capture/OCR/overlay APIs와 permission semantics는 아직 capability probe 전이다.
-- current Rust portable core는 full native MARCO semantic engine을 포함하지 않는다; P2-A의 development translation-backend bridge를 evidence로 결정해야 한다.
-- overlay self-exclusion/focus behavior는 direct host probe가 필요하다.
-- actual OCR accuracy와 end-to-end latency budget은 아직 측정되지 않았다.
+- No granted Screen Recording run has yet demonstrated captured-frame identity, overlay dismissal, or repeated-cycle exclusion.
+- The app remains absent from Screen & System Audio Recording after two user-authorized normal Add/Open attempts. It is ad hoc signed and this Mac has no valid signing identity; the permission grant path is unresolved and stable signing remains outside scope.
+- App-specific no-persistence inventory and successful app execution under a network-denied sandbox remain pending with the granted flow.
+- Latency values from a real capture have not been recorded; product budgets remain open.
+- The current native translation bridge is intentionally limited to the Rust seven-case fixture resolver and is not the Python/MARCO semantic engine.
 
-## Next step
-
-documentation preflight/Graphify orientation 후 현재 macOS toolchain과 P1-F host boundary를 조사한다. 그 다음 native capture/OCR/overlay capability probes와 request-state/privacy contract를 먼저 완성하고, evidence 후 ADR과 최소 app implementation으로 진행한다.
+Next: obtain the user's decision on AC-A2 and on whether to expand scope for a local development-signing path or provide a stable identity on this Mac. Then run the final `.app` through controlled known/unknown fixtures, repeated selection/cancel/re-entry, overlay dismissal, app-specific file inventory, network-denied execution, and latency sampling; finish canonical documentation and deliver the Korean commit to `origin/p2/macos-capture-ocr-overlay` only if the authorized stop condition is met.

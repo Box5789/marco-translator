@@ -107,15 +107,23 @@
 - 외부 LLM은 provider-independent maintenance proposal 역할만 한다.
 - cloud API는 runtime 필수 dependency가 될 수 없다.
 - Python 구현은 현재 reference implementation이다.
-- native core 언어/구현 전략은 P1-F ADR의 evidence가 확보되기 전에는 결정하지 않는다.
+- portable runtime 언어/구현 전략은 P1-F ADR-007의 Rust shared core 결정을 따른다. 최종 MARCO semantic engine과 neural realizer는 별도 evidence 전까지 미결정이다.
 - P1-F에서는 architecture 후보를 실제 source/pattern/capability evidence로 비교한 뒤, 명확한 단일 결론이면 task 권한 안에서 ADR을 확정할 수 있다. 여러 후보가 기준을 충족하면서 장기 trade-off가 남으면 구현 전 사용자 정렬을 요청한다.
-- dependency/toolchain은 capability probe가 선행되며, work/current.md의 P1-F 사전 승인 경계를 따른다.
+- dependency/toolchain은 capability probe가 선행되며, `work/current.md`의 현재 작업 사전 승인 경계를 따른다.
+
+## P2-A implementation interpretation
+
+- FR-026의 region 선택은 macOS system picker가 제공하는 single-window/single-display 선택 뒤 앱 preview에서 사용자가 drag-crop하는 흐름이다. 캡처 전 선택은 항상 명시적이며 한 번의 frame만 처리한다.
+- FR-028은 Vision revision 3의 accurate `zh-Hans` OCR로 구현한다. 언어 범위는 현재 controlled fixture와 capability evidence가 확인한 간체 중국어다.
+- FR-029/FR-036은 UI가 의미 규칙을 복제하지 않도록 P1-F `marco-runtime.v1` C ABI를 호출한다. Rust resolver는 frozen fixture set만 다루며 full Python/MARCO semantic engine과 동등하다고 간주하지 않는다.
+- FR-030의 결과는 별도 AppKit floating panel로 표시하고 사용자가 닫거나 요청을 취소할 수 있다. Panel과 host window는 캡처 대상에서 제외하도록 설정한다.
+- FR-032/FR-033에서 frame, OCR 문자열, 처리 시간은 요청 중 메모리에서만 유지한다. 앱 로그, screenshot history, cloud request는 생성하지 않는다. 실제 direct-host inventory/offline 결과는 `work/current.md`에 기록한다.
 
 ## Assumptions
 
 - MARCO의 public `mco` API가 reference integration boundary로 유지된다.
 - P1-D는 사용자 승인에 따라 `kg-patch-v2`를 사용하고, seed-only `kg1_` version과 `kg-patch-v1`을 명시적으로 거부한다. 자동 migration은 없다.
-- 성능 수치는 Mac 실측 전 확정하지 않는다.
+- P2-A의 제품 latency/resource 목표는 실제 host 측정 후 정한다.
 
 ## Glossary
 

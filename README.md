@@ -18,7 +18,7 @@ Start with:
 - `AGENT_GUIDE.md`
 - `work/current.md`
 
-Then follow the canonical docs referenced there. The current Python package is a reference implementation; cross-platform native-core technology has not yet been selected.
+Then follow the canonical docs referenced there. The Python package remains the reference implementation; P1-F selected the Rust shared runtime slice, while the full MARCO semantic engine and model runtime remain unselected.
 
 ## Core principles
 
@@ -96,6 +96,20 @@ new KG version
 ```
 
 See `docs/ARCHITECTURE.md`, `docs/REQUIREMENTS.md`, and `docs/P1.md`.
+
+## macOS P2-A capture host
+
+The development host is in `macos/`. It targets macOS 14.0 or newer and uses ScreenCaptureKit for an explicit window/display selection, Vision for local `zh-Hans` OCR, and the existing P1-F Rust C ABI for translation. The native runtime currently contains the seven frozen P1-F translation fixtures; it does not embed the Python/MARCO semantic engine. Unknown phrases stay unresolved.
+
+Build with an installed Rust toolchain and Xcode command-line tools:
+
+```sh
+CARGO_TARGET_DIR=/tmp/marco-translator-runtime-target \
+  macos/build-app.sh /tmp/MarcoTranslatorP2.app
+open /tmp/MarcoTranslatorP2.app
+```
+
+Screen Recording access is requested only after the user starts capture. Frames, OCR text, and timing samples are kept in memory; the app does not persist capture history or contact a cloud service. Build and host-check details are in ADR-008 and `docs/TEST_STRATEGY.md`.
 
 ## P1-D Knowledge Version API
 

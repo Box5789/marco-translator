@@ -36,9 +36,9 @@
 
 | Surface | macOS | Windows | Android | iOS | 현재 결정 |
 |---|---|---|---|---|---|
-| Screen capture | platform API | platform API | platform API | platform 제약 검증 필요 | P2/P1-F 전 미결정 |
-| OCR | capability benchmark 필요 | capability benchmark 필요 | capability benchmark 필요 | capability benchmark 필요 | 미결정 |
-| Overlay/UI | native host 검증 | native host 검증 | native host 검증 | OS 정책/UX 검증 필요 | 미결정 |
+| Screen capture | ScreenCaptureKit picker + one-shot screenshot | platform API | platform API | platform 제약 검증 필요 | macOS P2-A만 ADR-008에서 선택; 나머지 플랫폼은 미결정 |
+| OCR | Vision revision 3 (`zh-Hans`) | capability benchmark 필요 | capability benchmark 필요 | capability benchmark 필요 | macOS P2-A만 선택; 나머지 플랫폼/언어는 미결정 |
+| Overlay/UI | AppKit `NSWindow` + transient `NSPanel` | native host 검증 | native host 검증 | OS 정책/UX 검증 필요 | macOS P2-A만 host evidence 확보; 나머지 플랫폼은 미결정 |
 | Model acceleration | Apple capability 측정 | Windows capability 측정 | Android capability 측정 | Apple capability 측정 | 후속 근거 수집 후 결정; P1-F는 model backend를 선택하지 않음 |
 | Persistence location | app sandbox 정책 | app data 정책 | app sandbox 정책 | app sandbox 정책 | adapter |
 | Permissions/lifecycle | macOS 정책 | Windows 정책 | Android 정책 | iOS 정책 | adapter |
@@ -139,4 +139,6 @@ Architecture rule:
 - raw capture/OCR text는 기본적으로 ephemeral이며 자동 cloud upload나 persistent logging을 하지 않는다.
 - overlay가 다음 capture에 다시 들어가는 self-feedback cycle을 명시적으로 차단한다.
 
-구체 API/프레임워크(Screen capture API, OCR engine, AppKit/SwiftUI 조합)는 현재 source와 macOS SDK capability probe 후 ADR로 결정한다. native platform feature가 confirmed criteria를 충족하면 새 third-party dependency보다 우선한다.
+구체 API/프레임워크 선택은 local SDK probe와 macOS 14.0 deployment-target build를 거쳤다. P2-A는 `SCContentSharingPicker`의 단일 창/디스플레이 선택과 `SCScreenshotManager.captureImage`의 one-shot frame, Vision revision 3의 `zh-Hans`, AppKit `NSWindow`/non-activating `NSPanel`을 사용한다. 시스템 picker에는 region mode가 없어 캡처 후 preview에서 사용자가 crop한다. 전체 비교와 근거는 `docs/ENGINEERING_BASELINE.md` ADR-008에 기록한다.
+
+P1-F `marco-runtime.v1` C ABI로 연결한다. Rust 구현은 seven-case fixture resolver이므로 이 macOS slice는 고정된 grounded 문구를 검증한다. full Python/MARCO engine은 앱에 포함하지 않았으며, Python/MARCO actual integration은 reference regression에서 별도로 유지한다. 지원 문구 밖의 입력은 unresolved로 남긴다.

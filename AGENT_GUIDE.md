@@ -105,15 +105,14 @@ runtime logs
 
 다음은 아직 architecture decision이 아니다.
 
-- shared native core 언어
-- Rust/C/C++/Swift/Kotlin/C# 등 구체적 구현 조합
+- full MARCO semantic engine의 product runtime 구현 방식
 - Tiny Realizer의 최종 모델
 - model execution backend
-- macOS/Windows/Android/iOS UI framework
-- OCR engine
-- screen capture / overlay 구현 세부
+- Windows/Android/iOS UI framework, OCR, screen capture, overlay 구현
 
-이 결정은 해당 단계에서 현재 source, 플랫폼 capability probe, 성능 측정, 배포/FFI 비용, 실제 acceptance criteria를 근거로 ADR을 작성한 뒤 선택한다.
+P1-F는 최소 portable runtime slice에 Rust shared core와 versioned C ABI를 선택했다(ADR-007). P2-A는 macOS 14+ host slice에 ScreenCaptureKit, Vision `zh-Hans`, AppKit을 선택했다(ADR-008). 이 결정은 다른 플랫폼 구현이나 full MARCO semantic runtime 선택으로 일반화하지 않는다.
+
+남은 결정은 해당 단계의 source, 플랫폼 capability probe, 성능 측정, 배포/FFI 비용, 실제 acceptance criteria를 근거로 ADR을 작성한 뒤 선택한다.
 
 ## 현재 단계
 
